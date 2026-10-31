@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#7a1f2b">
+<meta name="description" content="Programa interactivo del XLII Congreso Argentino de Mecánica Computacional (MECOM 2026), Mendoza, 10 al 13 de noviembre.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>MECOM 2026 · Programa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --vino:#7a1f2b; --vino-2:#9b2c3a; --vino-soft:#f6e9eb;
+  --bg:#f7f5f2; --card:#fff; --ink:#1d1b1a; --muted:#6b6560; --line:#e6e1db;
+  --star:#d99a00; --warn:#b3261e;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#141212; --card:#1e1b1b; --ink:#efeae6; --muted:#a39b95; --line:#322d2c; --vino-soft:#3a1c21; }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15px;line-height:1.4}
+button,input,select{font:inherit;color:inherit}
+header{background:var(--vino);color:#fff;padding:14px 16px 0;position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.brand h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.2px}
+.brand small{opacity:.8;font-size:12.5px}
+nav.tabs{display:flex;gap:4px;margin-top:10px}
+nav.tabs button{flex:1;background:none;border:0;color:#fff;opacity:.7;padding:10px 4px 12px;font-weight:600;border-bottom:3px solid transparent;cursor:pointer}
+nav.tabs button.on{opacity:1;border-bottom-color:#fff}
+nav.tabs .badge{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:#fff;color:var(--vino);font-size:11.5px;line-height:18px}
+main{max-width:760px;margin:0 auto;padding:12px 12px 90px}
+.days{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.days button{flex:1;min-width:70px;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:7px 6px;cursor:pointer;text-align:center}
+.days button b{display:block;font-size:13px}
+.days button span{font-size:12px;color:var(--muted)}
+.days button.on{background:var(--vino);border-color:var(--vino);color:#fff}
+.days button.on span{color:#fff;opacity:.85}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.filters input{grid-column:1/-1}
+.filters input,.filters select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+.slot{margin:16px 0 6px;display:flex;align-items:center;gap:8px;font-family:"IBM Plex Mono",monospace;font-size:13.5px;color:var(--vino-2);font-weight:500;position:sticky;top:106px;background:var(--bg);padding:4px 0;z-index:5}
+.slot::after{content:"";flex:1;height:1px;background:var(--line)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:11px 12px;margin:6px 0;display:grid;grid-template-columns:1fr auto;gap:4px 10px;cursor:pointer}
+.card.fav{border-color:var(--star);box-shadow:inset 3px 0 0 var(--star)}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;color:var(--muted)}
+.chip{font-family:"IBM Plex Mono",monospace;font-size:11.5px;padding:1px 7px;border-radius:6px;color:#fff;font-weight:500}
+.sala{font-weight:600;color:var(--ink)}
+.title{grid-column:1;font-weight:600;font-size:14.5px}
+.title.missing{color:var(--muted);font-weight:500;font-style:italic}
+.authors{grid-column:1;font-size:13px;color:var(--muted)}
+.star{grid-row:1/4;grid-column:2;align-self:start;background:none;border:0;font-size:24px;line-height:1;cursor:pointer;color:var(--line);padding:2px}
+.card.fav .star{color:var(--star)}
+.event{border-radius:var(--r);padding:10px 12px;margin:6px 0;background:var(--vino-soft);display:flex;justify-content:space-between;gap:10px;font-size:14px}
+.event b{color:var(--vino-2)}
+@media (prefers-color-scheme: dark){ .event b{color:#f0b7bf} }
+.event span{color:var(--muted);font-size:13px;white-space:nowrap}
+.empty{text-align:center;color:var(--muted);padding:40px 10px}
+.count{font-size:12.5px;color:var(--muted);margin:2px 2px 0}
+.conflict{color:var(--warn);font-size:12.5px;font-weight:600;grid-column:1}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 12px}
+.btn{border:1px solid var(--vino);background:var(--card);color:var(--vino);padding:8px 12px;border-radius:10px;font-weight:600;cursor:pointer}
+@media (prefers-color-scheme: dark){ .btn{color:#f0b7bf;border-color:#f0b7bf} }
+.btn.solid{background:var(--vino);color:#fff;border-color:var(--vino)}
+.now-head{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin-bottom:10px}
+.now-head .clock{font-family:"IBM Plex Mono",monospace;font-size:26px;color:var(--vino-2)}
+.now-head label{font-size:12.5px;color:var(--muted);display:flex;gap:6px;align-items:center;margin-top:6px}
+h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:16px 2px 4px}
+/* hoja de detalle */
+.sheet-bg{position:fixed;inset:0;background:#0007;z-index:40;display:none}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-width:760px;margin:0 auto;background:var(--card);border-radius:18px 18px 0 0;padding:18px 18px 26px;z-index:41;transform:translateY(100%);visibility:hidden;transition:transform .2s ease,visibility 0s .2s;max-height:85vh;overflow:auto}
+.sheet.open{transform:none;visibility:visible;transition:transform .2s ease}
+.sheet-bg.open{display:block}
+.sheet h2{font-size:18px;margin:8px 0}
+.sheet dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:14px;margin:12px 0}
+.sheet dt{color:var(--muted)}
+.sheet dd{margin:0}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:10px;font-size:13.5px;opacity:0;transition:opacity .2s;z-index:60;pointer-events:none}
+.toast.show{opacity:1}
+footer{font-size:12px;color:var(--muted);text-align:center;margin-top:30px}
+footer a{color:inherit}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><h1>MECOM 2026</h1><small>Mendoza · 10–13 nov</small></div>
+  <nav class="tabs">
+    <button data-tab="programa" class="on">Programa</button>
+    <button data-tab="ahora">Ahora</button>
+    <button data-tab="agenda">Mi agenda<span class="badge" id="favCount">0</span></button>
+  </nav>
+</header>
+
+<main>
+  <section id="v-programa">
+    <div class="days" id="days"></div>
+    <div class="filters">
+      <input id="q" type="search" placeholder="Buscar título, autor o ID…" autocomplete="off">
+      <select id="fSes"><option value="">Todas las sesiones</option></select>
+      <select id="fSala"><option value="">Todas las salas</option></select>
+    </div>
+    <div class="count" id="count"></div>
+    <div id="list"></div>
+  </section>
+
+  <section id="v-ahora" hidden>
+    <div class="now-head">
+      <div class="clock" id="clock">--:--</div>
+      <div id="nowMsg" style="font-size:13.5px;color:var(--muted)"></div>
+      <label><input type="checkbox" id="sim"> Simular un momento del congreso:
+        <select id="simDay"></select><input type="time" id="simTime" value="14:25" step="300">
+      </label>
+    </div>
+    <div id="nowList"></div>
+  </section>
+
+  <section id="v-agenda" hidden>
+    <div class="toolbar">
+      <button class="btn solid" id="btnIcs">Exportar a calendario (.ics)</button>
+      <button class="btn" id="btnCopy">Copiar lista</button>
+      <button class="btn" id="btnClear">Vaciar</button>
+    </div>
+    <div id="agendaList"></div>
+  </section>
+
+  <footer>
+    Datos: programa oficial publicado por AMCA · <span id="dataInfo"></span><br>
+    <a href="https://amcaonline.org.ar/mecom2026/?page_id=635" target="_blank" rel="noopener">Ver programa oficial (PDF)</a>
+  </footer>
+</main>
+
+<div class="sheet-bg" id="sheetBg"></div>
+<div class="sheet" id="sheet"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/*__DATA__*/
+</script>
+<script>
+"use strict";
+// ---------- Configuración ----------
+// Si se publica fuera de Claude (p. ej. GitHub Pages), poner aquí la URL CSV
+// de la planilla de Google publicada ("Archivo > Compartir > Publicar en la web > CSV").
+// La app la lee al abrir; si falla, usa la copia embebida.
+const CSV_URL = "";
+const TZ_OFFSET = "-03:00"; // Mendoza
+const FAV_KEY = "mecom2026.favs";
+
+let D = window.PROGRAMA;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const norm = s => String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+const DIAS = {"2026-11-10":"Mar","2026-11-11":"Mié","2026-11-12":"Jue","2026-11-13":"Vie"};
+const DIAS_L = {"2026-11-10":"Martes 10","2026-11-11":"Miércoles 11","2026-11-12":"Jueves 12","2026-11-13":"Viernes 13"};
+const PALETTE = ["#7a1f2b","#1f5f7a","#2e7d4f","#8a5a00","#5b3f8c","#a03d6b","#2b6f6a","#6e4b2a","#3f5fa8","#8c3f2b","#4b6b1f","#7a2f6e","#2f4f5f","#9a6a1a","#5a2f2f","#1f7a6e","#6a2fa0","#555"];
+const sesColor = {};
+
+// ---------- Estado ----------
+let favs = new Set();
+try { favs = new Set(JSON.parse(localStorage.getItem(FAV_KEY) || "[]")); } catch(e) {}
+const saveFavs = () => { try { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); } catch(e) {} updBadge(); };
+let state = { tab:"programa", day:null, q:"", ses:"", sala:"" };
+
+// ---------- CSV (para la versión publicada con planilla en vivo) ----------
+function parseCSV(t){
+  const rows=[]; let row=[], f="", q=false;
+  for(let i=0;i<t.length;i++){ const c=t[i];
+    if(q){ if(c=='"'){ if(t[i+1]=='"'){f+='"';i++;} else q=false; } else f+=c; }
+    else if(c=='"') q=true; else if(c==','){row.push(f);f="";}
+    else if(c=='\n'){row.push(f);rows.push(row);row=[];f="";} else if(c!='\r') f+=c; }
+  if(f||row.length){row.push(f);rows.push(row);}
+  const h=rows.shift().map(x=>x.trim());
+  return rows.filter(r=>r.some(x=>x.trim())).map(r=>Object.fromEntries(h.map((k,i)=>[k,(r[i]??"").trim()])));
+}
+const LIVE_KEY = "mecom2026.live";
+function applyLive(text, fuente){
+  // Google Sheets puede devolver horas como "8:00:00" y fechas como "10/11/2026": se normalizan.
+  const hm = t => { const m = String(t).match(/^(\d{1,2}):(\d{2})/); return m ? m[1].padStart(2,"0")+":"+m[2] : t; };
+  const ymd = d => { const m = String(d).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); return m ? `${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}` : d; };
+  const items = parseCSV(text).filter(it => it.id && it.tipo)
+    .map(it => ({...it, id:String(it.id), dia:ymd(it.dia), inicio:hm(it.inicio), fin:hm(it.fin)}));
+  if(items.length < 20) return false;
+  D = {...D, items, fuente}; init(); return true;
+}
+async function tryLive(){
+  if(!CSV_URL) return;
+  // 1) última copia descargada (sirve sin conexión)
+  try{ const c = JSON.parse(localStorage.getItem(LIVE_KEY)||"null"); if(c) applyLive(c.text, "actualizado " + c.when); }catch(e){}
+  // 2) versión en vivo de la planilla
+  try{
+    const r = await fetch(CSV_URL, {cache:"no-store"}); if(!r.ok) return;
+    const text = await r.text();
+    const when = new Date().toLocaleString("es-AR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+    if(applyLive(text, "actualizado " + when)){ try{ localStorage.setItem(LIVE_KEY, JSON.stringify({text, when})); }catch(e){} }
+  }catch(e){}
+}
+// ---------- Utilidades ----------
+const isTalk = it => it.tipo === "charla" || it.tipo === "poster";
+const key = it => it.dia + " " + it.inicio;
+function sesName(c){ return (D.sesiones[c] || c || ""); }
+function chip(c){ if(!c) return ""; return `<span class="chip" style="background:${sesColor[c]||"#555"}" title="${esc(sesName(c))}">${esc(c)}</span>`; }
+function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),1800); }
+function updBadge(){ $("#favCount").textContent = favs.size; }
+
+function cardHTML(it, opts={}){
+  const f = favs.has(it.id);
+  const t = it.titulo ? `<div class="title">${esc(it.titulo)}</div>` : `<div class="title missing">Título a confirmar (trabajo ${esc(it.id)})</div>`;
+  return `<div class="card ${f?"fav":""}" data-id="${esc(it.id)}">
+    <div class="meta">${opts.showTime?`<b>${esc(it.inicio)}</b>`:""}<span class="sala">${esc(it.sala)}</span>${chip(it.sesion)}<span>#${esc(it.id)}</span></div>
+    <button class="star" data-star="${esc(it.id)}" aria-label="Agregar a mi agenda">${f?"★":"☆"}</button>
+    ${t}
+    ${it.autores?`<div class="authors">${esc(it.autores)}</div>`:""}
+    ${opts.conflict?`<div class="conflict">⚠ Superpuesta con otra charla de tu agenda</div>`:""}
+  </div>`;
+}
+function eventHTML(it){
+  return `<div class="event"><b>${esc(it.titulo)}</b><span>${esc(it.inicio)}${it.fin?"–"+esc(it.fin):""}${it.sala?" · "+esc(it.sala):""}</span></div>`;
+}
+
+// ---------- Vista Programa ----------
+function renderProgram(){
+  const q = norm(state.q);
+  const items = D.items.filter(it => it.dia === state.day).filter(it => {
+    if(!isTalk(it)) return !q && !state.ses && !state.sala;
+    if(state.ses && it.sesion !== state.ses) return false;
+    if(state.sala && it.sala !== state.sala) return false;
+    if(q && !norm(`${it.titulo} ${it.autores} ${it.id} ${sesName(it.sesion)}`).includes(q)) return false;
+    return true;
+  }).sort((a,b)=> a.inicio.localeCompare(b.inicio) || (isTalk(a)-isTalk(b)) || a.sala.localeCompare(b.sala,undefined,{numeric:true}));
+  const nT = items.filter(isTalk).length;
+  $("#count").textContent = `${nT} ${nT==1?"presentación":"presentaciones"}`;
+  let html="", last="";
+  for(const it of items){
+    if(!isTalk(it)){ html += eventHTML(it); last=""; continue; }
+    if(it.inicio!==last){ html += `<div class="slot">${esc(it.inicio)}</div>`; last=it.inicio; }
+    html += cardHTML(it);
+  }
+  $("#list").innerHTML = html || `<div class="empty">No hay resultados con esos filtros.</div>`;
+}
+
+// ---------- Vista Ahora ----------
+function nowParts(){
+  if($("#sim").checked) return { dia: $("#simDay").value, hm: $("#simTime").value || "00:00" };
+  const d = new Date(Date.now() + (new Date().getTimezoneOffset() - 180) * 60000); // hora de Mendoza
+  const p = n => String(n).padStart(2,"0");
+  return { dia:`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`, hm:`${p(d.getHours())}:${p(d.getMinutes())}` };
+}
+function renderNow(){
+  const {dia, hm} = nowParts();
+  $("#clock").textContent = hm;
+  const today = D.items.filter(it => it.dia === dia);
+  if(!today.length){
+    $("#nowMsg").textContent = dia < "2026-11-10" ? "El congreso empieza el martes 10 de noviembre. Activá la simulación para probar esta vista." : "No hay actividades programadas para hoy.";
+    $("#nowList").innerHTML = ""; return;
+  }
+  $("#nowMsg").textContent = DIAS_L[dia] || dia;
+  const live = today.filter(it => it.inicio <= hm && hm < (it.fin || it.inicio));
+  const starts = [...new Set(today.filter(it => it.inicio > hm).map(it => it.inicio))].sort();
+  const next = starts.length ? today.filter(it => it.inicio === starts[0]) : [];
+  const sortS = a => a.sort((x,y)=> isTalk(x)-isTalk(y) || x.sala.localeCompare(y.sala,undefined,{numeric:true}));
+  let h = `<h3 class="sec">En curso</h3>` + (live.length ? sortS(live).map(it => isTalk(it)?cardHTML(it,{showTime:true}):eventHTML(it)).join("") : `<div class="empty" style="padding:14px">Nada en curso en este momento.</div>`);
+  if(next.length) h += `<h3 class="sec">A continuación · ${esc(starts[0])}</h3>` + sortS(next).map(it => isTalk(it)?cardHTML(it,{showTime:true}):eventHTML(it)).join("");
+  const myNext = today.filter(it => favs.has(it.id) && it.inicio > hm).sort((a,b)=>a.inicio.localeCompare(b.inicio));
+  if(myNext.length) h += `<h3 class="sec">Lo próximo de tu agenda hoy</h3>` + myNext.map(it=>cardHTML(it,{showTime:true})).join("");
+  $("#nowList").innerHTML = h;
+}
+
+// ---------- Vista Mi agenda ----------
+function myItems(){ return D.items.filter(it => favs.has(it.id)).sort((a,b)=> key(a).localeCompare(key(b)) || a.sala.localeCompare(b.sala,undefined,{numeric:true})); }
+function renderAgenda(){
+  const my = myItems();
+  if(!my.length){ $("#agendaList").innerHTML = `<div class="empty">Todavía no marcaste charlas.<br>Tocá ☆ en cualquier presentación para sumarla acá.</div>`; return; }
+  const cnt = {}; my.forEach(it => cnt[key(it)] = (cnt[key(it)]||0)+1);
+  let h="", lastDay="";
+  for(const it of my){
+    if(it.dia!==lastDay){ h += `<h3 class="sec">${esc(DIAS_L[it.dia]||it.dia)}</h3>`; lastDay=it.dia; }
+    h += cardHTML(it, {showTime:true, conflict: cnt[key(it)]>1});
+  }
+  $("#agendaList").innerHTML = h;
+}
+
+// ---------- Detalle ----------
+function openSheet(id){
+  const it = D.items.find(x => x.id === id); if(!it) return;
+  const f = favs.has(id);
+  $("#sheet").innerHTML = `
+    <div class="meta">${chip(it.sesion)}<span>${esc(sesName(it.sesion))}</span></div>
+    <h2>${esc(it.titulo || "Título a confirmar")}</h2>
+    <div class="authors">${esc(it.autores || "")}</div>
+    <dl>
+      <dt>Día</dt><dd>${esc(DIAS_L[it.dia]||it.dia)}</dd>
+      <dt>Horario</dt><dd>${esc(it.inicio)}${it.fin?"–"+esc(it.fin):""}</dd>
+      <dt>Sala</dt><dd>${esc(it.sala)}</dd>
+      <dt>Trabajo</dt><dd>#${esc(it.id)}</dd>
+      ${it.notas?`<dt>Notas</dt><dd>${esc(it.notas)}</dd>`:""}
+    </dl>
+    <div class="toolbar">
+      <button class="btn ${f?"":"solid"}" data-star="${esc(id)}">${f?"Quitar de mi agenda":"★ Agregar a mi agenda"}</button>
+      <button class="btn" id="sheetClose">Cerrar</button>
+    </div>`;
+  $("#sheet").classList.add("open"); $("#sheetBg").classList.add("open");
+}
+function closeSheet(){ $("#sheet").classList.remove("open"); $("#sheetBg").classList.remove("open"); }
+
+// ---------- Exportar ----------
+function icsText(){
+  const dt = (d,t) => d.replaceAll("-","") + "T" + t.replace(":","") + "00";
+  const fold = s => s.replace(/([,;\\])/g,"\\$1").replace(/\n/g,"\\n");
+  const stamp = new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z";
+  const ev = myItems().map(it => [
+    "BEGIN:VEVENT", `UID:mecom2026-${it.id}@programa`, `DTSTAMP:${stamp}`,
+    `DTSTART;TZID=America/Argentina/Mendoza:${dt(it.dia,it.inicio)}`,
+    `DTEND;TZID=America/Argentina/Mendoza:${dt(it.dia,it.fin||it.inicio)}`,
+    `SUMMARY:${fold(`[${it.sesion}] ${it.titulo || "Trabajo "+it.id}`)}`,
+    `LOCATION:${fold(`${it.sala} · UTN FRM, Rodríguez 273, Mendoza`)}`,
+    `DESCRIPTION:${fold(`${it.autores||""}\nTrabajo #${it.id} · ${sesName(it.sesion)}`)}`,
+    "END:VEVENT"].join("\r\n"));
+  return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//MECOM2026//Programa//ES","CALSCALE:GREGORIAN",
+    "BEGIN:VTIMEZONE","TZID:America/Argentina/Mendoza","BEGIN:STANDARD","DTSTART:19700101T000000","TZOFFSETFROM:-0300","TZOFFSETTO:-0300","TZNAME:-03","END:STANDARD","END:VTIMEZONE",
+    ...ev, "END:VCALENDAR"].join("\r\n");
+}
+async function exportIcs(){
+  if(!favs.size) return toast("Tu agenda está vacía");
+  const data = icsText(), filename = "MECOM2026_mi_agenda.ics";
+  try{
+    const dl = window.claude ? await window.claude.use("downloads") : null;
+    if(dl){ await dl.save({filename, data}); return; }
+  }catch(e){ if(window.claude) return toast("Descarga cancelada"); }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([data],{type:"text/calendar"})); a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+async function copyList(){
+  if(!favs.size) return toast("Tu agenda está vacía");
+  let last="", txt="MI AGENDA · MECOM 2026\n";
+  for(const it of myItems()){
+    if(it.dia!==last){ txt += `\n${DIAS_L[it.dia]}\n`; last=it.dia; }
+    txt += `${it.inicio} · ${it.sala} · [${it.sesion}] ${it.titulo || "Trabajo "+it.id}\n`;
+  }
+  try{ await navigator.clipboard.writeText(txt); toast("Copiado al portapapeles"); }catch(e){ toast("No se pudo copiar"); }
+}
+
+// ---------- Eventos ----------
+function render(){
+  if(state.tab==="programa") renderProgram();
+  if(state.tab==="ahora") renderNow();
+  if(state.tab==="agenda") renderAgenda();
+}
+document.addEventListener("click", e => {
+  const s = e.target.closest("[data-star]");
+  if(s){ e.stopPropagation(); const id=s.dataset.star;
+    if(favs.has(id)){ favs.delete(id); toast("Quitada de tu agenda"); } else { favs.add(id); toast("Agregada a tu agenda ★"); }
+    saveFavs(); render(); if($("#sheet").classList.contains("open")) openSheet(id); return; }
+  const tab = e.target.closest("nav.tabs button");
+  if(tab){ state.tab = tab.dataset.tab;
+    document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on",b===tab));
+    ["programa","ahora","agenda"].forEach(t => $("#v-"+t).hidden = t!==state.tab);
+    window.scrollTo(0,0); render(); return; }
+  const day = e.target.closest(".days button");
+  if(day){ state.day = day.dataset.day; document.querySelectorAll(".days button").forEach(b=>b.classList.toggle("on",b===day)); render(); return; }
+  if(e.target.id==="sheetClose" || e.target.id==="sheetBg"){ closeSheet(); return; }
+  const card = e.target.closest(".card");
+  if(card){ openSheet(card.dataset.id); }
+});
+$("#q").addEventListener("input", e => { state.q = e.target.value; renderProgram(); });
+$("#fSes").addEventListener("change", e => { state.ses = e.target.value; renderProgram(); });
+$("#fSala").addEventListener("change", e => { state.sala = e.target.value; renderProgram(); });
+["#sim","#simDay","#simTime"].forEach(s => $(s).addEventListener("input", renderNow));
+$("#btnIcs").addEventListener("click", exportIcs);
+$("#btnCopy").addEventListener("click", copyList);
+$("#btnClear").addEventListener("click", () => {
+  const b=$("#btnClear");
+  if(b.dataset.armed){ favs.clear(); saveFavs(); renderAgenda(); b.textContent="Vaciar"; delete b.dataset.armed; }
+  else { b.dataset.armed=1; b.textContent="¿Seguro? Tocá de nuevo"; setTimeout(()=>{b.textContent="Vaciar"; delete b.dataset.armed;},3000); }
+});
+setInterval(()=>{ if(state.tab==="ahora") renderNow(); }, 30000);
+
+// ---------- Inicio ----------
+function init(){
+  Object.keys(D.sesiones).sort().forEach((c,i)=> sesColor[c] = PALETTE[i % PALETTE.length]);
+  const dias = [...new Set(D.items.map(it=>it.dia))].sort();
+  const {dia:hoy} = nowParts();
+  state.day = state.day && dias.includes(state.day) ? state.day : (dias.includes(hoy) ? hoy : dias[0]);
+  $("#days").innerHTML = dias.map(d => `<button data-day="${d}" class="${d===state.day?"on":""}"><b>${DIAS[d]||d}</b><span>${d.slice(8)} nov</span></button>`).join("");
+  $("#simDay").innerHTML = dias.map(d => `<option value="${d}">${DIAS_L[d]||d}</option>`).join("");
+  const sesUsed = [...new Set(D.items.filter(isTalk).map(it=>it.sesion))].sort();
+  $("#fSes").innerHTML = `<option value="">Todas las sesiones</option>` + sesUsed.map(c=>`<option value="${esc(c)}">${esc(c)} · ${esc(sesName(c))}</option>`).join("");
+  const salas = [...new Set(D.items.filter(isTalk).map(it=>it.sala))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  $("#fSala").innerHTML = `<option value="">Todas las salas</option>` + salas.map(s=>`<option>${esc(s)}</option>`).join("");
+  $("#dataInfo").textContent = `${D.items.filter(isTalk).length} trabajos · ${D.fuente || "versión "+D.version}`;
+  updBadge(); render();
+}
+init(); tryLive();
+// Funciona sin conexión cuando la app está publicada en un sitio propio (no aplica dentro de Claude).
+if("serviceWorker" in navigator && location.protocol==="https:"){
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
+</script>
+</body>
+</html>
