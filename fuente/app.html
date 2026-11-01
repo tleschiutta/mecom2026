@@ -3,47 +3,63 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#7a1f2b">
+<meta name="theme-color" content="#134082">
 <meta name="description" content="Programa interactivo del XLII Congreso Argentino de Mecánica Computacional (MECOM 2026), Mendoza, 10 al 13 de noviembre.">
 <link rel="manifest" href="manifest.json">
+<script>
+  (function(){ var t=null; try{ t=localStorage.getItem("mecom2026.tema"); }catch(e){}
+    if(!t) t = (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+    document.documentElement.dataset.theme = t; })();
+</script>
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>MECOM 2026 · Programa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Open+Sans:wght@700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --vino:#7a1f2b; --vino-2:#9b2c3a; --vino-soft:#f6e9eb;
+  --base:#134082; --base-2:#2a5ba8; --base-soft:#e7eef8; --banda:rgba(19,64,117,.48); /* #134075 con 52% de transparencia */
+  --tabs-h:56px; --title-h:78px;
   --bg:#f7f5f2; --card:#fff; --ink:#1d1b1a; --muted:#6b6560; --line:#e6e1db;
   --star:#d99a00; --warn:#b3261e;
   --r:14px;
 }
-@media (prefers-color-scheme: dark){
-  :root{ --bg:#141212; --card:#1e1b1b; --ink:#efeae6; --muted:#a39b95; --line:#322d2c; --vino-soft:#3a1c21; }
-}
+:root[data-theme="dark"]{ color-scheme:dark;
+  --bg:#141212; --card:#1e1b1b; --ink:#efeae6; --muted:#a39b95; --line:#322d2c; --base-soft:#1a2740; --base-2:#8db0e6; }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:15px;line-height:1.4}
 button,input,select{font:inherit;color:inherit}
-header{background:var(--vino);color:#fff;padding:14px 16px 0;position:sticky;top:0;z-index:20}
-.brand{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
-.brand h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.2px}
-.brand small{opacity:.8;font-size:12.5px}
-nav.tabs{display:flex;gap:4px;margin-top:10px}
-nav.tabs button{flex:1;background:none;border:0;color:#fff;opacity:.7;padding:10px 4px 12px;font-weight:600;border-bottom:3px solid transparent;cursor:pointer}
+/* Encabezado: foto de montañas + banda translúcida con las pestañas.
+   El título se va al hacer scroll; la banda de pestañas queda fija arriba. */
+header{position:sticky;top:calc(-1 * var(--title-h));z-index:20;color:#fff;
+  background:#1d3f6e url("__FONDO__") center 62%/cover no-repeat;}
+.brand{height:var(--title-h);display:flex;align-items:flex-end;padding:0 18px 10px;max-width:760px;margin:0 auto;box-sizing:border-box}
+.brand{justify-content:space-between;gap:12px}
+.theme-btn{flex:none;width:42px;height:42px;margin-bottom:2px;border-radius:50%;border:1px solid #ffffff55;background:#ffffff22;color:#fff;
+  display:grid;place-items:center;cursor:pointer;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.theme-btn:active{transform:scale(.94)}
+.theme-btn svg{width:22px;height:22px}
+.theme-btn .sun{display:none}
+:root[data-theme="dark"] .theme-btn .sun{display:block}
+:root[data-theme="dark"] .theme-btn .moon{display:none}
+.brand h1{margin:0;font-family:"Open Sans","IBM Plex Sans",sans-serif;font-weight:700;font-size:clamp(28px,8vw,40px);letter-spacing:-.3px;text-shadow:0 1px 6px #0006}
+nav.tabs{display:flex;background:var(--banda);height:var(--tabs-h);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+nav.tabs .wrap{display:flex;width:100%;max-width:760px;margin:0 auto}
+nav.tabs button{flex:1;background:none;border:0;color:#fff;opacity:.75;font-family:"Open Sans","IBM Plex Sans",sans-serif;font-weight:700;font-size:clamp(16px,4.6vw,20px);border-bottom:4px solid transparent;cursor:pointer;padding:0 4px;white-space:nowrap}
 nav.tabs button.on{opacity:1;border-bottom-color:#fff}
-nav.tabs .badge{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:#fff;color:var(--vino);font-size:11.5px;line-height:18px}
+@media (min-width:700px){ :root{ --title-h:110px; --tabs-h:60px; } }
+nav.tabs .badge{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:#fff;color:var(--base);font-size:11.5px;line-height:18px;vertical-align:2px;font-family:"IBM Plex Sans",sans-serif}
 main{max-width:760px;margin:0 auto;padding:12px 12px 90px}
 .days{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
 .days button{flex:1;min-width:70px;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:7px 6px;cursor:pointer;text-align:center}
 .days button b{display:block;font-size:13px}
 .days button span{font-size:12px;color:var(--muted)}
-.days button.on{background:var(--vino);border-color:var(--vino);color:#fff}
+.days button.on{background:var(--base);border-color:var(--base);color:#fff}
 .days button.on span{color:#fff;opacity:.85}
-.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.filters input{grid-column:1/-1}
+.filters{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:10px}
 .filters input,.filters select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
-.slot{margin:16px 0 6px;display:flex;align-items:center;gap:8px;font-family:"IBM Plex Mono",monospace;font-size:13.5px;color:var(--vino-2);font-weight:500;position:sticky;top:106px;background:var(--bg);padding:4px 0;z-index:5}
+.slot{margin:16px 0 6px;display:flex;align-items:center;gap:8px;font-family:"IBM Plex Mono",monospace;font-size:13.5px;color:var(--base-2);font-weight:500;position:sticky;top:var(--tabs-h);background:var(--bg);padding:4px 0;z-index:5}
 .slot::after{content:"";flex:1;height:1px;background:var(--line)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:11px 12px;margin:6px 0;display:grid;grid-template-columns:1fr auto;gap:4px 10px;cursor:pointer}
 .card.fav{border-color:var(--star);box-shadow:inset 3px 0 0 var(--star)}
@@ -55,20 +71,47 @@ main{max-width:760px;margin:0 auto;padding:12px 12px 90px}
 .authors{grid-column:1;font-size:13px;color:var(--muted)}
 .star{grid-row:1/4;grid-column:2;align-self:start;background:none;border:0;font-size:24px;line-height:1;cursor:pointer;color:var(--line);padding:2px}
 .card.fav .star{color:var(--star)}
-.event{border-radius:var(--r);padding:10px 12px;margin:6px 0;background:var(--vino-soft);display:flex;justify-content:space-between;gap:10px;font-size:14px}
-.event b{color:var(--vino-2)}
-@media (prefers-color-scheme: dark){ .event b{color:#f0b7bf} }
+.event{border-radius:var(--r);padding:10px 12px;margin:6px 0;background:var(--base-soft);display:flex;justify-content:space-between;gap:10px;font-size:14px}
+.event b{color:var(--base-2)}
+:root[data-theme="dark"] .event b{color:#a9c3ea}
 .event span{color:var(--muted);font-size:13px;white-space:nowrap}
+/* Bloques de sesión */
+.grp{margin:22px 0 24px}
+.blk{display:flex;align-items:center;gap:10px;border-radius:14px;padding:12px 14px;margin:7px 0;color:#151515;cursor:pointer;user-select:none;
+  font-family:"Open Sans","IBM Plex Sans",sans-serif;font-weight:700;font-size:clamp(13.5px,3.7vw,16px);line-height:1.25;transition:filter .15s}
+.blk:active{filter:brightness(.95)}
+.blk .nm{flex:1}
+.blk .sl{font-family:"IBM Plex Sans",sans-serif;font-weight:400;white-space:nowrap}
+.blk .chev{font-size:12px;opacity:.6;transition:transform .2s;margin-left:2px}
+.blk.open .chev{transform:rotate(180deg)}
+.blk-body{margin:-2px 0 12px 12px;padding:2px 0 2px 10px;border-left:4px solid var(--c)}
+.blk-body .card{margin:6px 0}
+.event.click{cursor:pointer}
+.event.plen{background:#f3f7fc;border:1px solid #d9e4f3}
+:root[data-theme="dark"] .event.plen{background:#253a5e;border-color:#2f4870}
+.event .tt{display:inline-flex;align-items:center;gap:6px}
+.event .chev{font-size:12px;opacity:.7;transition:transform .2s}
+.event.open .chev{transform:rotate(180deg)}
+.event .evr{display:flex;align-items:center;gap:8px}
+.ev-info{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin:-2px 0 10px;font-size:14px}
+.ev-info dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:0}
+.ev-info dt{color:var(--muted)}
+.ev-info dd{margin:0}
+.ev-info .pend{color:var(--muted);font-style:italic}
+/* Actividades que ya pasaron */
+.past{opacity:.42}
+.blk.past{opacity:.35;filter:saturate(.55)}
 .empty{text-align:center;color:var(--muted);padding:40px 10px}
 .count{font-size:12.5px;color:var(--muted);margin:2px 2px 0}
 .conflict{color:var(--warn);font-size:12.5px;font-weight:600;grid-column:1}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 12px}
-.btn{border:1px solid var(--vino);background:var(--card);color:var(--vino);padding:8px 12px;border-radius:10px;font-weight:600;cursor:pointer}
-@media (prefers-color-scheme: dark){ .btn{color:#f0b7bf;border-color:#f0b7bf} }
-.btn.solid{background:var(--vino);color:#fff;border-color:var(--vino)}
+.btn{border:1px solid var(--base);background:var(--card);color:var(--base);padding:8px 12px;border-radius:10px;font-weight:600;cursor:pointer}
+:root[data-theme="dark"] .btn{color:#a9c3ea;border-color:#a9c3ea}
+.btn.solid{background:var(--base);color:#fff;border-color:var(--base)}
 .now-head{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin-bottom:10px}
-.now-head .clock{font-family:"IBM Plex Mono",monospace;font-size:26px;color:var(--vino-2)}
+.now-head .clock{font-family:"IBM Plex Mono",monospace;font-size:26px;color:var(--base-2)}
 .now-head label{font-size:12.5px;color:var(--muted);display:flex;gap:6px;align-items:center;margin-top:6px}
+h3.sec.day{font-size:14px;color:var(--base-2);margin-top:22px}
 h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:16px 2px 4px}
 /* hoja de detalle */
 .sheet-bg{position:fixed;inset:0;background:#0007;z-index:40;display:none}
@@ -83,16 +126,23 @@ h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--m
 .toast.show{opacity:1}
 footer{font-size:12px;color:var(--muted);text-align:center;margin-top:30px}
 footer a{color:inherit}
+footer .credit{margin:0 auto 14px;padding-top:16px;border-top:1px solid var(--line);max-width:520px;font-size:13px;line-height:1.5}
+footer .credit b{color:var(--ink)}
 </style>
 </head>
 <body>
 <header>
-  <div class="brand"><h1>MECOM 2026</h1><small>Mendoza · 10–13 nov</small></div>
-  <nav class="tabs">
+  <div class="brand"><h1>MECOM 2026</h1>
+    <button class="theme-btn" id="themeBtn" aria-label="Activar o desactivar el modo oscuro" title="Modo oscuro">
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2 12h2.2M19.8 12H22M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+    </button>
+  </div>
+  <nav class="tabs"><div class="wrap">
     <button data-tab="programa" class="on">Programa</button>
     <button data-tab="ahora">Ahora</button>
     <button data-tab="agenda">Mi agenda<span class="badge" id="favCount">0</span></button>
-  </nav>
+  </div></nav>
 </header>
 
 <main>
@@ -101,7 +151,6 @@ footer a{color:inherit}
     <div class="filters">
       <input id="q" type="search" placeholder="Buscar título, autor o ID…" autocomplete="off">
       <select id="fSes"><option value="">Todas las sesiones</option></select>
-      <select id="fSala"><option value="">Todas las salas</option></select>
     </div>
     <div class="count" id="count"></div>
     <div id="list"></div>
@@ -128,6 +177,9 @@ footer a{color:inherit}
   </section>
 
   <footer>
+    <p class="credit">Creado por <b>Tomás Leschiutta</b> como un aporte voluntario para el MECOM 2026.<br>
+    Es un proyecto sin fines de lucro, hecho solo para ayudar al congreso y a quienes participan.<br>
+    <i>Esta no es la app oficial de AMCA: ante cualquier diferencia, vale el programa oficial.</i></p>
     Datos: programa oficial publicado por AMCA · <span id="dataInfo"></span><br>
     <a href="https://amcaonline.org.ar/mecom2026/?page_id=635" target="_blank" rel="noopener">Ver programa oficial (PDF)</a>
   </footer>
@@ -153,17 +205,17 @@ const FAV_KEY = "mecom2026.favs";
 let D = window.PROGRAMA;
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const norm = s => String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+const norm = s => String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/\s+/g," ").trim();
 const DIAS = {"2026-11-10":"Mar","2026-11-11":"Mié","2026-11-12":"Jue","2026-11-13":"Vie"};
 const DIAS_L = {"2026-11-10":"Martes 10","2026-11-11":"Miércoles 11","2026-11-12":"Jueves 12","2026-11-13":"Viernes 13"};
-const PALETTE = ["#7a1f2b","#1f5f7a","#2e7d4f","#8a5a00","#5b3f8c","#a03d6b","#2b6f6a","#6e4b2a","#3f5fa8","#8c3f2b","#4b6b1f","#7a2f6e","#2f4f5f","#9a6a1a","#5a2f2f","#1f7a6e","#6a2fa0","#555"];
+const PALETTE = ["#9b2c3a","#1f5f7a","#2e7d4f","#8a5a00","#5b3f8c","#a03d6b","#2b6f6a","#6e4b2a","#3f5fa8","#8c3f2b","#4b6b1f","#7a2f6e","#2f4f5f","#9a6a1a","#5a2f2f","#1f7a6e","#6a2fa0","#555"];
 const sesColor = {};
 
 // ---------- Estado ----------
 let favs = new Set();
 try { favs = new Set(JSON.parse(localStorage.getItem(FAV_KEY) || "[]")); } catch(e) {}
 const saveFavs = () => { try { localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); } catch(e) {} updBadge(); };
-let state = { tab:"programa", day:null, q:"", ses:"", sala:"" };
+let state = { tab:"programa", day:null, q:"", ses:"" };
 
 // ---------- CSV (para la versión publicada con planilla en vivo) ----------
 function parseCSV(t){
@@ -199,17 +251,21 @@ async function tryLive(){
   }catch(e){}
 }
 // ---------- Utilidades ----------
+const open = new Set();   // bloques y plenarias desplegados
+function isPast(it, now){ const {dia, hm} = now || nowParts(); return it.dia < dia || (it.dia === dia && (it.fin || it.inicio) <= hm); }
+const pastCls = (it, now) => isPast(it, now) ? " past" : "";
+const isPlen = it => it.tipo === "evento" && /plenaria/i.test(it.titulo);
 const isTalk = it => it.tipo === "charla" || it.tipo === "poster";
 const key = it => it.dia + " " + it.inicio;
 function sesName(c){ return (D.sesiones[c] || c || ""); }
-function chip(c){ if(!c) return ""; return `<span class="chip" style="background:${sesColor[c]||"#555"}" title="${esc(sesName(c))}">${esc(c)}</span>`; }
+function chip(c){ if(!c) return ""; const pc=(D.sesColor||{})[c]; return `<span class="chip" style="background:${pc||sesColor[c]||"#555"};color:${pc?"#151515":"#fff"}" title="${esc(sesName(c))}">${esc(c)}</span>`; }
 function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),1800); }
 function updBadge(){ $("#favCount").textContent = favs.size; }
 
 function cardHTML(it, opts={}){
   const f = favs.has(it.id);
   const t = it.titulo ? `<div class="title">${esc(it.titulo)}</div>` : `<div class="title missing">Título a confirmar (trabajo ${esc(it.id)})</div>`;
-  return `<div class="card ${f?"fav":""}" data-id="${esc(it.id)}">
+  return `<div class="card ${f?"fav":""}${pastCls(it)}" data-id="${esc(it.id)}">
     <div class="meta">${opts.showTime?`<b>${esc(it.inicio)}</b>`:""}<span class="sala">${esc(it.sala)}</span>${chip(it.sesion)}<span>#${esc(it.id)}</span></div>
     <button class="star" data-star="${esc(it.id)}" aria-label="Agregar a mi agenda">${f?"★":"☆"}</button>
     ${t}
@@ -218,28 +274,82 @@ function cardHTML(it, opts={}){
   </div>`;
 }
 function eventHTML(it){
-  return `<div class="event"><b>${esc(it.titulo)}</b><span>${esc(it.inicio)}${it.fin?"–"+esc(it.fin):""}${it.sala?" · "+esc(it.sala):""}</span></div>`;
+  const span = `${esc(it.inicio)}${it.fin?"–"+esc(it.fin):""}${it.sala?" · "+esc(it.sala):""}`;
+  if(!isPlen(it)) return `<div class="event${pastCls(it)}"><b>${esc(it.titulo)}</b><span>${span}</span></div>`;
+  const k = "ev:"+it.id, o = open.has(k);
+  const pend = `<span class="pend">A confirmar</span>`;
+  return `<div class="event click plen${o?" open":""}${pastCls(it)}" data-open="${k}" role="button" aria-expanded="${o}"><b class="tt">${esc(it.titulo)}<span class="chev">▾</span></b><span>${span}</span></div>`
+    + (o ? `<div class="ev-info${pastCls(it)}"><dl>
+        <dt>Título</dt><dd>${it.tema?esc(it.tema):pend}</dd>
+        <dt>Disertante</dt><dd>${it.disertante?esc(it.disertante):pend}</dd>
+        <dt>Descripción</dt><dd>${it.descripcion?esc(it.descripcion):`<span class="pend">La información de esta actividad se publicará próximamente.</span>`}</dd>
+      </dl></div>` : "");
 }
 
 // ---------- Vista Programa ----------
 function renderProgram(){
-  const q = norm(state.q);
-  const items = D.items.filter(it => it.dia === state.day).filter(it => {
-    if(!isTalk(it)) return !q && !state.ses && !state.sala;
+  // Sin búsqueda ni sesión elegida: vista por bloques de sesión. Con filtro: lista de trabajos.
+  if(!norm(state.q) && !state.ses) return renderBlocks();
+  // Con búsqueda o sesión elegida se buscan resultados en TODO el congreso, agrupados por día y horario.
+  const words = norm(state.q).split(" ").filter(Boolean);   // cada palabra tiene que aparecer (en cualquier orden)
+  const items = D.items.filter(it => {
+    if(!isTalk(it)) return false;
     if(state.ses && it.sesion !== state.ses) return false;
-    if(state.sala && it.sala !== state.sala) return false;
-    if(q && !norm(`${it.titulo} ${it.autores} ${it.id} ${sesName(it.sesion)}`).includes(q)) return false;
-    return true;
-  }).sort((a,b)=> a.inicio.localeCompare(b.inicio) || (isTalk(a)-isTalk(b)) || a.sala.localeCompare(b.sala,undefined,{numeric:true}));
-  const nT = items.filter(isTalk).length;
-  $("#count").textContent = `${nT} ${nT==1?"presentación":"presentaciones"}`;
-  let html="", last="";
+    const hay = norm(`${it.titulo} ${it.autores} ${it.id} ${it.sesion} ${sesName(it.sesion)}`);
+    return words.every(w => hay.includes(w));
+  }).sort((a,b)=> key(a).localeCompare(key(b)) || salaN(a.sala)-salaN(b.sala));
+  const nT = items.length;
+  $("#count").textContent = `${nT} ${nT==1?"presentación":"presentaciones"} en todo el congreso`;
+  document.querySelectorAll(".days button").forEach(b=>b.classList.remove("on"));
+  let html="", last="", lastDay="";
   for(const it of items){
-    if(!isTalk(it)){ html += eventHTML(it); last=""; continue; }
+    if(it.dia!==lastDay){ html += `<h3 class="sec day">${esc(DIAS_L[it.dia]||it.dia)}</h3>`; lastDay=it.dia; last=""; }
     if(it.inicio!==last){ html += `<div class="slot">${esc(it.inicio)}</div>`; last=it.inicio; }
     html += cardHTML(it);
   }
   $("#list").innerHTML = html || `<div class="empty">No hay resultados con esos filtros.</div>`;
+}
+
+const salaN = s => parseInt(String(s).replace(/\D/g,"")) || 99;
+function renderBlocks(){
+  document.querySelectorAll(".days button").forEach(b=>b.classList.toggle("on", b.dataset.day===state.day));
+  const now = nowParts();
+  const day = D.items.filter(it => it.dia === state.day)
+    .sort((a,b)=> a.inicio.localeCompare(b.inicio) || (isTalk(a)-isTalk(b)));
+  const posterStarts = new Set(day.filter(it=>it.tipo==="poster").map(it=>it.inicio));
+  // Las actividades generales (sin sala) separan el día en tramos; dentro de cada tramo,
+  // un bloque por sala y sesión. Las actividades con sala (semi-plenarias) van como una fila más.
+  const segs = []; let grp = null;
+  for(const it of day){
+    if(it.tipo === "evento" && !it.sala){
+      grp = null;
+      if(!(posterStarts.has(it.inicio) && /p[oó]ster/i.test(it.titulo))) segs.push({ev:it}); // el concurso lo representa el bloque de pósters
+      continue;
+    }
+    if(!grp){ grp = {rows:new Map()}; segs.push(grp); }
+    const k = it.tipo === "evento" ? "ev:"+it.id : `${it.dia}|${it.sala}|${it.sesion}|${segs.length}`;
+    if(!grp.rows.has(k)) grp.rows.set(k, {k, sala:it.sala, sesion:it.sesion, ev: it.tipo==="evento" ? it : null, items:[]});
+    grp.rows.get(k).items.push(it);
+  }
+  const nT = day.filter(isTalk).length;
+  $("#count").textContent = `${nT} ${nT==1?"presentación":"presentaciones"}`;
+  let h = "";
+  for(const s of segs){
+    if(s.ev){ h += eventHTML(s.ev); continue; }
+    h += `<div class="grp">`;
+    const rows = [...s.rows.values()].sort((a,b)=> salaN(a.sala)-salaN(b.sala) || a.items[0].inicio.localeCompare(b.items[0].inicio));
+    for(const r of rows){
+      if(r.ev){ h += eventHTML(r.ev); continue; }
+      const c = (D.sesColor||{})[r.sesion] || "#ccc", o = open.has(r.k);
+      const past = r.items.every(it => isPast(it, now)) ? " past" : "";
+      const nombre = ((D.sesCorto||{})[r.sesion] || sesName(r.sesion) || "").toUpperCase();
+      h += `<div class="blk${o?" open":""}${past}" data-open="${esc(r.k)}" style="background:${c}" role="button" aria-expanded="${o}">
+              <span class="nm">${esc(r.sesion)} | ${esc(nombre)}</span><span class="sl">${esc(r.sala)}</span><span class="chev">▾</span></div>`;
+      if(o) h += `<div class="blk-body" style="--c:${c}">` + r.items.sort((a,b)=>a.inicio.localeCompare(b.inicio)).map(it=>cardHTML(it,{showTime:true})).join("") + `</div>`;
+    }
+    h += `</div>`;
+  }
+  $("#list").innerHTML = h;
 }
 
 // ---------- Vista Ahora ----------
@@ -361,23 +471,30 @@ document.addEventListener("click", e => {
     ["programa","ahora","agenda"].forEach(t => $("#v-"+t).hidden = t!==state.tab);
     window.scrollTo(0,0); render(); return; }
   const day = e.target.closest(".days button");
-  if(day){ state.day = day.dataset.day; document.querySelectorAll(".days button").forEach(b=>b.classList.toggle("on",b===day)); render(); return; }
+  if(day){ state.day = day.dataset.day; state.q = ""; state.ses = ""; $("#q").value = ""; $("#fSes").value = "";
+    window.scrollTo(0,0); render(); return; }
   if(e.target.id==="sheetClose" || e.target.id==="sheetBg"){ closeSheet(); return; }
+  const op = e.target.closest("[data-open]");
+  if(op){ const k = op.dataset.open; open.has(k) ? open.delete(k) : open.add(k); render(); return; }
   const card = e.target.closest(".card");
   if(card){ openSheet(card.dataset.id); }
 });
 $("#q").addEventListener("input", e => { state.q = e.target.value; renderProgram(); });
 $("#fSes").addEventListener("change", e => { state.ses = e.target.value; renderProgram(); });
-$("#fSala").addEventListener("change", e => { state.sala = e.target.value; renderProgram(); });
 ["#sim","#simDay","#simTime"].forEach(s => $(s).addEventListener("input", renderNow));
 $("#btnIcs").addEventListener("click", exportIcs);
+$("#themeBtn").addEventListener("click", () => {
+  const t = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = t;
+  try{ localStorage.setItem("mecom2026.tema", t); }catch(e){}
+});
 $("#btnCopy").addEventListener("click", copyList);
 $("#btnClear").addEventListener("click", () => {
   const b=$("#btnClear");
   if(b.dataset.armed){ favs.clear(); saveFavs(); renderAgenda(); b.textContent="Vaciar"; delete b.dataset.armed; }
   else { b.dataset.armed=1; b.textContent="¿Seguro? Tocá de nuevo"; setTimeout(()=>{b.textContent="Vaciar"; delete b.dataset.armed;},3000); }
 });
-setInterval(()=>{ if(state.tab==="ahora") renderNow(); }, 30000);
+setInterval(render, 60000);
 
 // ---------- Inicio ----------
 function init(){
@@ -389,8 +506,6 @@ function init(){
   $("#simDay").innerHTML = dias.map(d => `<option value="${d}">${DIAS_L[d]||d}</option>`).join("");
   const sesUsed = [...new Set(D.items.filter(isTalk).map(it=>it.sesion))].sort();
   $("#fSes").innerHTML = `<option value="">Todas las sesiones</option>` + sesUsed.map(c=>`<option value="${esc(c)}">${esc(c)} · ${esc(sesName(c))}</option>`).join("");
-  const salas = [...new Set(D.items.filter(isTalk).map(it=>it.sala))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
-  $("#fSala").innerHTML = `<option value="">Todas las salas</option>` + salas.map(s=>`<option>${esc(s)}</option>`).join("");
   $("#dataInfo").textContent = `${D.items.filter(isTalk).length} trabajos · ${D.fuente || "versión "+D.version}`;
   updBadge(); render();
 }

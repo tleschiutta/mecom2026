@@ -1,19 +1,19 @@
-codigo,nombre
-S01,Acústica y vibraciones
-S02,Análisis estructural
-S03,Mecánica de fluidos computacional
-S04,Dinámica estructural (homenaje a Daniel Ambrosini)
-S05,Flujo y transporte multifásico en medios porosos y microescala
-S06,Mecánica computacional de sólidos
-S07,Modelado de sistemas multicuerpo
-S08,Modelado multiescala de la mecánica y la física de materiales complejos
-S09,Multifísica
-S10,Fundamentos matemáticos de los métodos numéricos
-S11,Optimización y control: teoría y aplicaciones
-S12,Ingeniería de reactores nucleares
-S13,Aplicaciones industriales
-S14,Transferencia de calor y masa
-S15,Hidrodinámica y transporte en ingeniería hidráulica
-S16,Enseñanza de métodos numéricos (homenaje a Silvia Raichman y Aníbal Mirasso)
-S17,"Modelización computacional en bioingeniería, biomecánica y sistemas biomédicos"
-CPE,Concurso de pósters
+codigo,nombre,corto,color
+S01,Acústica y vibraciones,ACÚSTICA Y VIBRACIONES,#93c47d
+S02,Análisis estructural,ANÁLISIS ESTRUCTURAL,#f6b26b
+S03,Mecánica de fluidos computacional,MEC. FLUIDOS COMPUTACIONAL,#ff8a80
+S04,Dinámica estructural (homenaje a Daniel Ambrosini),DINÁMICA ESTRUCTURAL (HOM. D. AMBROSINI),#6fa8dc
+S05,Flujo y transporte multifásico en medios porosos y microescala,FLUJO MULTIF. EN MEDIOS POROSOS Y MICROESC.,#ffd966
+S06,Mecánica computacional de sólidos,MEC. COMPUTACIONAL DE SÓLIDOS,#b4a7d6
+S07,Modelado de sistemas multicuerpo,MOD. SIST. MULTICUERPO,#4dd0c4
+S08,Modelado multiescala de la mecánica y la física de materiales complejos,MOD. MULTIESC. MEC. Y FÍSICA MAT. COMPLEJOS,#f48fb1
+S09,Multifísica,MULTIFÍSICA,#c5e17a
+S10,Fundamentos matemáticos de los métodos numéricos,FUND. MATEMÁTICOS DE MÉT. NUMÉRICOS,#a2c4c9
+S11,Optimización y control: teoría y aplicaciones,OPTIMIZACIÓN Y CONTROL,#e6b8af
+S12,Ingeniería de reactores nucleares,ING. DE REACTORES NUCLEARES,#9fc5e8
+S13,Aplicaciones industriales,APLICACIONES INDUSTRIALES,#d5a6bd
+S14,Transferencia de calor y masa,TRANSF. CALOR Y MASA,#d2b48c
+S15,Hidrodinámica y transporte en ingeniería hidráulica,HIDRODIN. Y TRANSP. EN ING. HIDRÁULICA,#9fa8f0
+S16,Enseñanza de métodos numéricos (homenaje a Silvia Raichman y Aníbal Mirasso),ENSEÑANZA DE MÉT. NUMÉRICOS (HOM. RAICHMAN Y MIRASSO),#cccccc
+S17,"Modelización computacional en bioingeniería, biomecánica y sistemas biomédicos","MOD. COMP. EN BIOING., BIOMEC. Y SIST. BIOM.",#7fd6f0
+CPE,Concurso de pósters,CONCURSO DE PÓSTERS,#d9cbe8

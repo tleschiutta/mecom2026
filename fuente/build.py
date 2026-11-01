@@ -6,12 +6,17 @@ import csv, json, sys, datetime, pathlib, shutil
 root = pathlib.Path(__file__).parent
 SRC = root/"src" if (root/"src").exists() else root   # en el repo, la plantilla está junto a build.py
 items = list(csv.DictReader(open(root/"data/programa.csv", encoding="utf-8")))
-ses = {r["codigo"]: r["nombre"] for r in csv.DictReader(open(root/"data/sesiones.csv", encoding="utf-8"))}
-cols = ["id","tipo","sesion","dia","inicio","fin","sala","titulo","autores","notas"]
+sesrows = list(csv.DictReader(open(root/"data/sesiones.csv", encoding="utf-8")))
+ses = {r["codigo"]: r["nombre"] for r in sesrows}
+sesCorto = {r["codigo"]: r.get("corto","") for r in sesrows}
+sesColor = {r["codigo"]: r.get("color","") for r in sesrows}
+cols = ["id","tipo","sesion","dia","inicio","fin","sala","titulo","autores","notas","tema","disertante","descripcion"]
 items = [{k: (r.get(k) or "").strip() for k in cols} for r in items]
 version = datetime.date.today().isoformat()
-data = {"version": version, "sesiones": ses, "items": items}
+data = {"version": version, "sesiones": ses, "sesCorto": sesCorto, "sesColor": sesColor, "items": items}
 html = (SRC/"app.html").read_text(encoding="utf-8")
+import base64
+html = html.replace("__FONDO__", "data:image/jpeg;base64," + base64.b64encode((SRC/"fondo.jpg").read_bytes()).decode())
 html = html.replace("/*__DATA__*/", "window.PROGRAMA = " + json.dumps(data, ensure_ascii=False).replace("</", "<\\/") + ";")
 if "--site" in sys.argv:
     url = sys.argv[sys.argv.index("--site")+1] if len(sys.argv) > sys.argv.index("--site")+1 else ""

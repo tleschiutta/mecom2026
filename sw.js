@@ -1,5 +1,5 @@
 // Service worker: guarda la app para usarla sin conexión.
-const CACHE = "mecom2026-2026-10-31-000632";
+const CACHE = "mecom2026-2026-11-01-233505";
 const SHELL = ["./", "index.html", "manifest.json", "icon-192.png", "icon-512.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener("activate", e => {
