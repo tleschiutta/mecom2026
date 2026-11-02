@@ -7,7 +7,15 @@ Web del programa del XLII Congreso Argentino de Mecánica Computacional (MECOM 2
 - Programa por día en bloques de sesión (con los colores del programa oficial) que se despliegan para ver sus trabajos.
 - Búsqueda por título, autor o número de trabajo, y filtro por sesión, en todo el congreso.
 - Plenarias desplegables (tema, disertante y descripción, que se completan en la planilla).
-- Las actividades que ya pasaron se muestran atenuadas. Modo claro y oscuro.
+- Las actividades que ya pasaron se muestran atenuadas.
+- Se actualiza sola: relee la planilla al abrirse, al volver a la app y cada 5 minutos, y avisa si cambió una charla de "Mi agenda".
+- Sin internet muestra la última versión guardada (nunca queda en blanco).
+- Panel de configuración (engranaje): modo oscuro, actualizar, ayuda y canal de WhatsApp.
+- Ventana de ayuda que aparece la primera vez.
+
+## Canal de WhatsApp
+
+Cuando exista el canal, pegar el link en `WHATSAPP_URL` dentro de `fuente/app.html` y regenerar el sitio.
 - Vista "Ahora": lo que está en curso y lo que sigue en cada sala.
 - "Mi agenda": charlas marcadas con ☆, aviso de superposiciones y exportación al calendario (.ics).
 - Se puede instalar en el celular y funciona sin conexión.
