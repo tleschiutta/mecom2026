@@ -83,6 +83,12 @@ header{position:sticky;top:calc(-1 * var(--title-h));z-index:20;color:#fff;
 .help .ft{padding:12px 20px 18px;border-top:1px solid #ffffff12}
 .help .ft button{width:100%;padding:13px;border:0;border-radius:12px;background:var(--base);color:#fff;font-weight:700;font-size:16px;cursor:pointer}
 body.noscroll{overflow:hidden}
+/* Selector de idioma */
+.lang{display:inline-flex;background:#ffffff14;border-radius:10px;padding:3px;gap:2px;flex:none}
+.lang button{border:0;background:none;color:#c9cbd0;font:inherit;font-size:13.5px;font-weight:600;padding:6px 11px;border-radius:8px;cursor:pointer}
+.lang button.on{background:#fff;color:#1d1f23}
+.cfg .row.lg{cursor:default}
+.help .lang{margin:0 20px 2px;align-self:flex-start}
 /* Aviso de cambios en el programa */
 .notice{position:fixed;left:50%;transform:translateX(-50%);bottom:72px;z-index:55;width:min(560px,calc(100vw - 24px));
   background:#1d2a44;color:#fff;border-radius:14px;padding:12px 44px 12px 14px;font-size:14px;line-height:1.4;box-shadow:0 10px 28px #0006;display:none}
@@ -133,6 +139,7 @@ main{max-width:760px;margin:0 auto;padding:12px 12px 90px}
 .blk-body{margin:-2px 0 12px 12px;padding:2px 0 2px 10px;border-left:4px solid var(--c)}
 .blk-body .card{margin:6px 0}
 .event.click{cursor:pointer}
+.evnote{font-weight:400;font-size:12.5px;color:var(--muted);margin-top:2px}
 .event.plen{background:#f3f7fc;border:1px solid #d9e4f3}
 :root[data-theme="dark"] .event.plen{background:#253a5e;border-color:#2f4870}
 .event .tt{display:inline-flex;align-items:center;gap:6px}
@@ -179,14 +186,14 @@ footer .credit b{color:var(--ink)}
 <body>
 <header>
   <div class="brand"><h1>MECOM 2026</h1>
-    <button class="theme-btn" id="cfgBtn" aria-label="Configuración" title="Configuración" aria-expanded="false" aria-controls="cfg">
+    <button class="theme-btn" id="cfgBtn" data-i18n-aria="cfg" aria-label="Configuración" title="Configuración" aria-expanded="false" aria-controls="cfg">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
   </div>
   <nav class="tabs"><div class="wrap">
-    <button data-tab="programa" class="on">Programa</button>
-    <button data-tab="ahora">Ahora</button>
-    <button data-tab="agenda">Mi agenda<span class="badge" id="favCount">0</span></button>
+    <button data-tab="programa" class="on"><span data-i18n="tabProg">Programa</span></button>
+    <button data-tab="ahora"><span data-i18n="tabNow">Ahora</span></button>
+    <button data-tab="agenda"><span data-i18n="tabAg">Mi agenda</span><span class="badge" id="favCount">0</span></button>
   </div></nav>
 </header>
 
@@ -194,7 +201,7 @@ footer .credit b{color:var(--ink)}
   <section id="v-programa">
     <div class="days" id="days"></div>
     <div class="filters">
-      <input id="q" type="search" placeholder="Buscar título, autor o ID…" autocomplete="off">
+      <input id="q" type="search" data-i18n-ph="search" placeholder="Buscar título, autor o ID…" autocomplete="off">
       <select id="fSes"><option value="">Todas las sesiones</option></select>
     </div>
     <div class="count" id="count"></div>
@@ -205,7 +212,7 @@ footer .credit b{color:var(--ink)}
     <div class="now-head">
       <div class="clock" id="clock">--:--</div>
       <div id="nowMsg" style="font-size:13.5px;color:var(--muted)"></div>
-      <label><input type="checkbox" id="sim"> Simular un momento del congreso:
+      <label><input type="checkbox" id="sim"> <span data-i18n="sim">Simular un momento del congreso:</span>
         <select id="simDay"></select><input type="time" id="simTime" value="14:25" step="300">
       </label>
     </div>
@@ -214,19 +221,17 @@ footer .credit b{color:var(--ink)}
 
   <section id="v-agenda" hidden>
     <div class="toolbar">
-      <button class="btn solid" id="btnIcs">Exportar a calendario (.ics)</button>
-      <button class="btn" id="btnCopy">Copiar lista</button>
-      <button class="btn" id="btnClear">Vaciar</button>
+      <button class="btn solid" id="btnIcs" data-i18n="ics">Exportar a calendario (.ics)</button>
+      <button class="btn" id="btnCopy" data-i18n="copy">Copiar lista</button>
+      <button class="btn" id="btnClear" data-i18n="clear">Vaciar</button>
     </div>
     <div id="agendaList"></div>
   </section>
 
   <footer>
-    <p class="credit">Creado por <b>Tomás Leschiutta</b> como un aporte voluntario para el MECOM 2026.<br>
-    Es un proyecto sin fines de lucro, hecho solo para ayudar al congreso y a quienes participan.<br>
-    <i>Esta no es la app oficial de AMCA: ante cualquier diferencia, vale el programa oficial.</i></p>
-    Datos: programa oficial publicado por AMCA · <span id="dataInfo"></span><br>
-    <a href="https://amcaonline.org.ar/mecom2026/?page_id=635" target="_blank" rel="noopener">Ver programa oficial (PDF)</a>
+    <p class="credit" data-i18n-html="credit"></p>
+    <span data-i18n="dataSrc">Datos: programa oficial publicado por AMCA</span> · <span id="dataInfo"></span><br>
+    <a href="https://amcaonline.org.ar/mecom2026/?page_id=635" target="_blank" rel="noopener" data-i18n="pdf">Ver programa oficial (PDF)</a>
   </footer>
 </main>
 
@@ -234,12 +239,14 @@ footer .credit b{color:var(--ink)}
 <div class="sheet" id="sheet"></div>
 <div class="toast" id="toast"></div>
 <div class="cfg" id="cfg" role="dialog" aria-label="Configuración">
-  <button class="row" id="cfgTheme" role="switch" aria-checked="false"><span>Modo oscuro</span><span class="sw"></span></button>
-  <button class="row" id="cfgUpd"><span>Actualizar</span>
+  <div class="row lg"><span data-i18n="lang">Idioma</span>
+    <span class="lang" role="radiogroup"><button data-lang="es" role="radio">Español</button><button data-lang="en" role="radio">English</button></span></div>
+  <button class="row" id="cfgTheme" role="switch" aria-checked="false"><span data-i18n="dark">Modo oscuro</span><span class="sw"></span></button>
+  <button class="row" id="cfgUpd"><span data-i18n="upd">Actualizar</span>
     <svg class="ico" id="updIco" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button>
-  <button class="row" id="cfgHelp"><span>Cómo usar la app</span>
+  <button class="row" id="cfgHelp"><span data-i18n="howto">Cómo usar la app</span>
     <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.6-3 4.5"/><path d="M12 17.5h.01"/></svg></button>
-  <a class="row" id="cfgWa" href="#" target="_blank" rel="noopener"><span>Canal de WhatsApp<small id="waSub">Próximamente</small></span>
+  <a class="row" id="cfgWa" href="#" target="_blank" rel="noopener"><span><span data-i18n="wa">Canal de WhatsApp</span><small id="waSub"></small></span>
     <svg class="wa" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#25D366"/>
       <path fill="#fff" d="M16 6.4c-5.3 0-9.6 4.3-9.6 9.6 0 1.8.5 3.5 1.4 5L6.4 25.6l4.7-1.4c1.4.8 3.1 1.3 4.9 1.3 5.3 0 9.6-4.3 9.6-9.6S21.3 6.4 16 6.4zm0 17.4c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-2.8.8.8-2.7-.2-.3c-.9-1.3-1.4-2.8-1.4-4.4 0-4.4 3.6-7.9 8-7.9s8 3.5 8 7.9-3.4 8-7.7 8z"/>
       <path fill="#fff" d="M20.4 18c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1-.7-.3-1.4-.7-2-1.3-.5-.5-1-1.1-1.3-1.7-.1-.2 0-.4.1-.5l.4-.5.2-.4v-.4l-.7-1.7c-.2-.5-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.5.5-.8 1.2-.8 1.9 0 .8.3 1.6.8 2.2 1 1.4 2.2 2.5 3.7 3.2.5.2 1 .4 1.5.5.6.2 1.2.2 1.8.1.6-.1 1.2-.5 1.5-1 .1-.3.2-.7.1-1-.1-.1-.2-.1-.4-.2z"/></svg></a>
@@ -247,22 +254,23 @@ footer .credit b{color:var(--ink)}
 </div>
 <div class="help" id="help" role="dialog" aria-modal="true" aria-labelledby="helpT">
   <div class="box">
-    <div class="hd"><div><h2 id="helpT">Bienvenido al programa del MECOM 2026</h2><p>Todo lo que podés hacer con esta app, en un minuto.</p></div>
-      <button class="x" id="helpX" aria-label="Cerrar">×</button></div>
+    <div class="hd"><div><h2 id="helpT" data-i18n="hT">Bienvenido al programa del MECOM 2026</h2><p data-i18n="hSub">Todo lo que podés hacer con esta app, en un minuto.</p></div>
+      <button class="x" id="helpX" data-i18n-aria="close" aria-label="Cerrar">×</button></div>
+    <span class="lang" role="radiogroup" aria-label="Idioma / Language"><button data-lang="es" role="radio">Español</button><button data-lang="en" role="radio">English</button></span>
     <div class="bd">
-      <div class="it"><div class="ic">📋</div><div><b>Programa por día</b>Elegí el día arriba. Las sesiones aparecen como bloques de colores con su sala; <b style="display:inline">tocá un bloque</b> para ver sus trabajos en orden y volvé a tocarlo para cerrarlo.</div></div>
-      <div class="it"><div class="ic">🔎</div><div><b>Buscar</b>Escribí un título, un autor o el número de trabajo, o elegí una sesión. Los resultados son de todo el congreso, no solo del día.</div></div>
-      <div class="it"><div class="ic">☆</div><div><b>Mi agenda</b>Marcá con <span class="k">☆</span> las charlas que te interesan. En <span class="k">Mi agenda</span> las ves juntas, te avisa si se superponen y podés pasarlas a tu calendario.</div></div>
-      <div class="it"><div class="ic">⏱️</div><div><b>Ahora</b>Muestra lo que está pasando en este momento y lo que sigue en cada sala. Lo que ya terminó se ve más tenue en todo el programa.</div></div>
-      <div class="it"><div class="ic">🎤</div><div><b>Plenarias</b>Tocá una plenaria para ver el tema, quién la da y de qué trata.</div></div>
-      <div class="it"><div class="ic">🔔</div><div><b>Siempre al día</b>La app revisa cambios en el programa sola. Si cambia algo de tu agenda, te avisa. También funciona sin internet, con la última versión guardada.</div></div>
-      <div class="it"><div class="ic">⚙️</div><div><b>Configuración</b>Con el engranaje de arriba activás el modo oscuro, actualizás a mano, volvés a ver esta ayuda y entrás al canal de WhatsApp del congreso.</div></div>
-      <div class="it"><div class="ic">📲</div><div><b>Instalala en tu celular</b><span id="helpInst"></span></div></div>
+      <div class="it"><div class="ic">📋</div><div data-i18n-html="h1"></div></div>
+      <div class="it"><div class="ic">🔎</div><div data-i18n-html="h2"></div></div>
+      <div class="it"><div class="ic">☆</div><div data-i18n-html="h3"></div></div>
+      <div class="it"><div class="ic">⏱️</div><div data-i18n-html="h4"></div></div>
+      <div class="it"><div class="ic">🎤</div><div data-i18n-html="h5"></div></div>
+      <div class="it"><div class="ic">🔔</div><div data-i18n-html="h6"></div></div>
+      <div class="it"><div class="ic">⚙️</div><div data-i18n-html="h7"></div></div>
+      <div class="it"><div class="ic">📲</div><div><b data-i18n="h8">Instalala en tu celular</b><span id="helpInst"></span></div></div>
     </div>
-    <div class="ft"><button id="helpOk">¡Empezar!</button></div>
+    <div class="ft"><button id="helpOk" data-i18n="start">¡Empezar!</button></div>
   </div>
 </div>
-<div class="notice" id="notice" role="status"><span id="noticeTxt"></span><button id="noticeX" aria-label="Cerrar">×</button></div>
+<div class="notice" id="notice" role="status"><span id="noticeTxt"></span><button id="noticeX" data-i18n-aria="close" aria-label="Cerrar">×</button></div>
 
 <script>
 /*__DATA__*/
@@ -281,8 +289,120 @@ let D = window.PROGRAMA;
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const norm = s => String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/\s+/g," ").trim();
-const DIAS = {"2026-11-10":"Mar","2026-11-11":"Mié","2026-11-12":"Jue","2026-11-13":"Vie"};
-const DIAS_L = {"2026-11-10":"Martes 10","2026-11-11":"Miércoles 11","2026-11-12":"Jueves 12","2026-11-13":"Viernes 13"};
+// ---------- Idiomas (español por defecto; inglés opcional) ----------
+// Se traduce toda la interfaz, las sesiones, salas y actividades generales.
+// Los títulos y autores de los trabajos quedan como en el programa oficial.
+const LANG_KEY = "mecom2026.idioma";
+let LANG = "es"; try{ if(localStorage.getItem(LANG_KEY) === "en") LANG = "en"; }catch(e){}
+const I18N = {
+ es: {
+  cfg:"Configuración", tabProg:"Programa", tabNow:"Ahora", tabAg:"Mi agenda", search:"Buscar título, autor o ID…",
+  allSes:"Todas las sesiones", sim:"Simular un momento del congreso:", ics:"Exportar a calendario (.ics)", copy:"Copiar lista", clear:"Vaciar", clearSure:"¿Seguro? Tocá de nuevo",
+  credit:'Creado por <b>Tomás Leschiutta</b> como un aporte voluntario para el MECOM 2026.<br>Es un proyecto sin fines de lucro, hecho solo para ayudar al congreso y a quienes participan.<br><i>Esta no es la app oficial de AMCA: ante cualquier diferencia, vale el programa oficial.</i>',
+  dataSrc:"Datos: programa oficial publicado por AMCA", pdf:"Ver programa oficial (PDF)",
+  lang:"Idioma", dark:"Modo oscuro", upd:"Actualizar", howto:"Cómo usar la app", wa:"Canal de WhatsApp", waSoon:"Próximamente", waOn:"Novedades y avisos del congreso", waToast:"El canal de WhatsApp estará disponible pronto",
+  close:"Cerrar", hT:"Bienvenido al programa del MECOM 2026", hSub:"Todo lo que podés hacer con esta app, en un minuto.", start:"¡Empezar!",
+  h1:'<b>Programa por día</b>Elegí el día arriba. Las sesiones aparecen como bloques de colores con su sala; <b style="display:inline">tocá un bloque</b> para ver sus trabajos en orden y volvé a tocarlo para cerrarlo.',
+  h2:"<b>Buscar</b>Escribí un título, un autor o el número de trabajo, o elegí una sesión. Los resultados son de todo el congreso, no solo del día.",
+  h3:'<b>Mi agenda</b>Marcá con <span class="k">☆</span> las charlas que te interesan. En <span class="k">Mi agenda</span> las ves juntas, te avisa si se superponen y podés pasarlas a tu calendario.',
+  h4:"<b>Ahora</b>Muestra lo que está pasando en este momento y lo que sigue en cada sala. Lo que ya terminó se ve más tenue en todo el programa.",
+  h5:"<b>Plenarias</b>Tocá una plenaria para ver el tema, quién la da y de qué trata.",
+  h6:"<b>Siempre al día</b>La app revisa cambios en el programa sola. Si cambia algo de tu agenda, te avisa. También funciona sin internet, con la última versión guardada.",
+  h7:"<b>Configuración</b>Con el engranaje de arriba elegís el idioma, activás el modo oscuro, actualizás a mano, volvés a ver esta ayuda y entrás al canal de WhatsApp del congreso.",
+  h8:"Instalala en tu celular",
+  instDone:"¡Ya la tenés instalada! Abrila desde su ícono cuando quieras.",
+  instIOS:"En Safari, tocá el botón <span class='k'>Compartir</span> y elegí <span class='k'>Agregar a pantalla de inicio</span>. Queda como una app más y funciona sin internet.",
+  instAnd:"En Chrome, abrí el menú <span class='k'>⋮</span> y elegí <span class='k'>Instalar app</span> o <span class='k'>Agregar a la pantalla principal</span>. Queda como una app más y funciona sin internet.",
+  pres:n => `${n} ${n==1?"presentación":"presentaciones"}`, presAll:n => `${n} ${n==1?"presentación":"presentaciones"} en todo el congreso`,
+  noRes:"No hay resultados con esos filtros.", tbc:"A confirmar", tTbc:id => `Título a confirmar (trabajo ${id})`, tTbcShort:"Título a confirmar",
+  plTema:"Título", plDis:"Disertante", plDesc:"Descripción", plSoon:"La información de esta actividad se publicará próximamente.",
+  addAg:"Agregar a mi agenda", addAgStar:"★ Agregar a mi agenda", rmAg:"Quitar de mi agenda", overlap:"⚠ Superpuesta con otra charla de tu agenda",
+  dDay:"Día", dTime:"Horario", dRoom:"Sala", dPaper:"Trabajo", dNotes:"Notas",
+  notStarted:"El congreso empieza el martes 10 de noviembre. Activá la simulación para probar esta vista.", noToday:"No hay actividades programadas para hoy.",
+  live:"En curso", nothingLive:"Nada en curso en este momento.", next:h => `A continuación · ${h}`, myNext:"Lo próximo de tu agenda hoy",
+  agEmpty:"Todavía no marcaste charlas.<br>Tocá ☆ en cualquier presentación para sumarla acá.",
+  tEmpty:"Tu agenda está vacía", tCancel:"Descarga cancelada", tCopied:"Copiado al portapapeles", tNoCopy:"No se pudo copiar", tRm:"Quitada de tu agenda", tAdd:"Agregada a tu agenda ★",
+  tOk:"Programa al día", tOffline:"Sin conexión: se muestra la última versión guardada", tPreview:"Esta vista previa usa los datos incluidos en la app",
+  icsFile:"MECOM2026_mi_agenda.ics", copyHead:"MI AGENDA · MECOM 2026", paper:id => `Trabajo ${id}`, paperN:id => `Trabajo #${id}`,
+  nUpd:"Programa actualizado", nChanges:n => ` (${n} ${n==1?"cambio":"cambios"}).`,
+  nRemoved:x => `Se quitó del programa una charla de tu agenda: ${x}.`, nMoved:(x,d,h) => `Cambió el horario de una charla de tu agenda: ${x}, ahora ${d} a las ${h}.`,
+  nChanged:x => `Se actualizó una charla de tu agenda: ${x}.`, nMany:n => ` Hay ${n} charlas de tu agenda con cambios.`,
+  nNewVer:"Hay una nueva versión de la app. Se aplica sola al volver a abrirla, o tocá ⚙ › Actualizar.",
+  works:n => `${n} trabajos`, updAt:f => `actualizado ${f}`, savedCopy:"copia guardada", version:v => `versión ${v}`,
+  iEmb:v => `Datos incluidos en la app (versión ${v}).`, iLast:f => `Última actualización: <b>${f}</b>`,
+  iNever:v => `Todavía no se pudo descargar el programa en vivo; se muestra la versión incluida en la app (${v}).`,
+  iLoading:"Buscando cambios…", iOffline:"Sin conexión: se muestra la última versión guardada.", iErr:"No se pudo actualizar; se muestra la última versión guardada.",
+  iOk:"El programa se revisa solo cada 5 minutos y al volver a la app.", locale:"es-AR"
+ },
+ en: {
+  cfg:"Settings", tabProg:"Program", tabNow:"Now", tabAg:"My agenda", search:"Search title, author or ID…",
+  allSes:"All sessions", sim:"Simulate a moment during the congress:", ics:"Export to calendar (.ics)", copy:"Copy list", clear:"Clear", clearSure:"Sure? Tap again",
+  credit:'Created by <b>Tomás Leschiutta</b> as a volunteer contribution to MECOM 2026.<br>This is a non-profit project, made only to help the congress and its participants.<br><i>This is not the official AMCA app: if anything differs, the official program prevails.</i>',
+  dataSrc:"Data: official program published by AMCA", pdf:"See the official program (PDF)",
+  lang:"Language", dark:"Dark mode", upd:"Refresh", howto:"How to use the app", wa:"WhatsApp channel", waSoon:"Coming soon", waOn:"Congress news and announcements", waToast:"The WhatsApp channel will be available soon",
+  close:"Close", hT:"Welcome to the MECOM 2026 program", hSub:"Everything you can do with this app, in one minute.", start:"Get started!",
+  h1:'<b>Program by day</b>Pick a day at the top. Sessions appear as colored blocks with their room; <b style="display:inline">tap a block</b> to see its papers in order, and tap it again to close it.',
+  h2:"<b>Search</b>Type a title, an author or the paper number, or pick a session. Results cover the whole congress, not just one day.",
+  h3:'<b>My agenda</b>Mark the talks you are interested in with <span class="k">☆</span>. In <span class="k">My agenda</span> you see them together, get warned about overlaps, and can add them to your calendar.',
+  h4:"<b>Now</b>Shows what is happening right now and what comes next in each room. Anything already finished is dimmed throughout the program.",
+  h5:"<b>Plenary lectures</b>Tap a plenary lecture to see its topic, speaker and description.",
+  h6:"<b>Always up to date</b>The app checks for program changes on its own and lets you know if something in your agenda changes. It also works offline, with the last saved version.",
+  h7:"<b>Settings</b>Use the gear at the top to choose the language, turn on dark mode, refresh manually, see this help again and join the congress WhatsApp channel.",
+  h8:"Install it on your phone",
+  instDone:"It is already installed! Open it from its icon whenever you like.",
+  instIOS:"In Safari, tap the <span class='k'>Share</span> button and choose <span class='k'>Add to Home Screen</span>. It works like any other app, even offline.",
+  instAnd:"In Chrome, open the <span class='k'>⋮</span> menu and choose <span class='k'>Install app</span> or <span class='k'>Add to Home screen</span>. It works like any other app, even offline.",
+  pres:n => `${n} ${n==1?"presentation":"presentations"}`, presAll:n => `${n} ${n==1?"presentation":"presentations"} in the whole congress`,
+  noRes:"No results for these filters.", tbc:"To be confirmed", tTbc:id => `Title to be confirmed (paper ${id})`, tTbcShort:"Title to be confirmed",
+  plTema:"Title", plDis:"Speaker", plDesc:"Description", plSoon:"Information about this activity will be published soon.",
+  addAg:"Add to my agenda", addAgStar:"★ Add to my agenda", rmAg:"Remove from my agenda", overlap:"⚠ Overlaps with another talk in your agenda",
+  dDay:"Day", dTime:"Time", dRoom:"Room", dPaper:"Paper", dNotes:"Notes",
+  notStarted:"The congress starts on Tuesday, November 10. Turn on the simulation to try this view.", noToday:"No activities scheduled for today.",
+  live:"Now on", nothingLive:"Nothing going on right now.", next:h => `Up next · ${h}`, myNext:"Coming up in your agenda today",
+  agEmpty:"You have not marked any talks yet.<br>Tap ☆ on any presentation to add it here.",
+  tEmpty:"Your agenda is empty", tCancel:"Download cancelled", tCopied:"Copied to clipboard", tNoCopy:"Could not copy", tRm:"Removed from your agenda", tAdd:"Added to your agenda ★",
+  tOk:"Program is up to date", tOffline:"Offline: showing the last saved version", tPreview:"This preview uses the data included in the app",
+  icsFile:"MECOM2026_my_agenda.ics", copyHead:"MY AGENDA · MECOM 2026", paper:id => `Paper ${id}`, paperN:id => `Paper #${id}`,
+  nUpd:"Program updated", nChanges:n => ` (${n} ${n==1?"change":"changes"}).`,
+  nRemoved:x => `A talk in your agenda was removed from the program: ${x}.`, nMoved:(x,d,h) => `A talk in your agenda changed time: ${x}, now ${d} at ${h}.`,
+  nChanged:x => `A talk in your agenda was updated: ${x}.`, nMany:n => ` ${n} talks in your agenda have changes.`,
+  nNewVer:"A new version of the app is available. It applies when you reopen it, or tap ⚙ › Refresh.",
+  works:n => `${n} papers`, updAt:f => `updated ${f}`, savedCopy:"saved copy", version:v => `version ${v}`,
+  iEmb:v => `Data included in the app (version ${v}).`, iLast:f => `Last update: <b>${f}</b>`,
+  iNever:v => `The live program could not be downloaded yet; showing the version included in the app (${v}).`,
+  iLoading:"Checking for changes…", iOffline:"Offline: showing the last saved version.", iErr:"Could not refresh; showing the last saved version.",
+  iOk:"The program is checked automatically every 5 minutes and whenever you return to the app.", locale:"en-US"
+ }
+};
+const T = (k, ...a) => { const v = I18N[LANG][k] ?? I18N.es[k]; return typeof v === "function" ? v(...a) : v; };
+const DIAS_ES = {"2026-11-10":["Mar","Martes 10"],"2026-11-11":["Mié","Miércoles 11"],"2026-11-12":["Jue","Jueves 12"],"2026-11-13":["Vie","Viernes 13"]};
+const DIAS_EN = {"2026-11-10":["Tue","Tuesday 10"],"2026-11-11":["Wed","Wednesday 11"],"2026-11-12":["Thu","Thursday 12"],"2026-11-13":["Fri","Friday 13"]};
+const DIAS = new Proxy({}, {get:(_,d) => ((LANG==="en"?DIAS_EN:DIAS_ES)[d]||[])[0]});
+const DIAS_L = new Proxy({}, {get:(_,d) => ((LANG==="en"?DIAS_EN:DIAS_ES)[d]||[])[1]});
+const monTxt = d => LANG==="en" ? `Nov ${+d.slice(8)}` : `${d.slice(8)} nov`;
+// Sesiones en inglés (nombre completo y abreviado)
+const SES_EN = {S01:["Acoustics and Vibrations","ACOUSTICS AND VIBRATIONS"],S02:["Structural Analysis","STRUCTURAL ANALYSIS"],
+  S03:["Computational Fluid Mechanics","COMPUTATIONAL FLUID MECH."],S04:["Structural Dynamics (tribute to Daniel Ambrosini)","STRUCTURAL DYNAMICS (TRIB. D. AMBROSINI)"],
+  S05:["Multiphase Flow and Transport in Porous Media and Microscale","MULTIPH. FLOW IN POROUS MEDIA AND MICROSC."],S06:["Computational Solid Mechanics","COMPUTATIONAL SOLID MECH."],
+  S07:["Multibody Systems Modeling","MULTIBODY SYST. MOD."],S08:["Multiscale Modeling of the Mechanics and Physics of Complex Materials","MULTISC. MOD. MECH. AND PHYS. COMPLEX MAT."],
+  S09:["Multiphysics","MULTIPHYSICS"],S10:["Mathematical Foundations of Numerical Methods","MATH. FOUNDATIONS OF NUM. METHODS"],
+  S11:["Optimization and Control: Theory and Applications","OPTIMIZATION AND CONTROL"],S12:["Nuclear Reactor Engineering","NUCLEAR REACTOR ENG."],
+  S13:["Industrial Applications","INDUSTRIAL APPLICATIONS"],S14:["Heat and Mass Transfer","HEAT AND MASS TRANSFER"],
+  S15:["Hydrodynamics and Transport in Hydraulic Engineering","HYDRODYN. AND TRANSP. IN HYDRAULIC ENG."],
+  S16:["Teaching of Numerical Methods (tribute to Silvia Raichman and Aníbal Mirasso)","TEACHING OF NUM. METHODS (TRIB. RAICHMAN AND MIRASSO)"],
+  S17:["Computational Modeling in Bioengineering, Biomechanics and Biomedical Systems","COMP. MOD. IN BIOENG., BIOMECH. AND BIOMED. SYST."],
+  CPE:["Poster contest","POSTER CONTEST"]};
+// Actividades generales y notas (si se agrega una nueva en la planilla sin traducción, se muestra en español)
+const EV_EN = {"Acreditación":"Registration","Acto de apertura":"Opening ceremony","Coffee break":"Coffee break","Plenaria":"Plenary lecture",
+  "Almuerzo libre":"Lunch (on your own)","Cocktail de bienvenida":"Welcome cocktail","Concurso de pósters":"Poster contest",
+  "Cena de camaradería":"Conference dinner","Acto de cierre":"Closing ceremony","Salida opcional a presa Potrerillos":"Optional trip to the Potrerillos Dam",
+  "Semi-plenaria Prof. Daniel Ambrosini (S04)":"Semi-plenary lecture, Prof. Daniel Ambrosini (S04)",
+  "S16: semi-plenaria o 2 trabajos (a confirmar)":"S16: semi-plenary lecture or 2 papers (to be confirmed)"};
+const NOTE_EN = {"En simultáneo: Reunión Cap. Fem. AMCA":"At the same time: AMCA Women's Chapter meeting","En simultáneo: Asamblea AMCA":"At the same time: AMCA General Assembly",
+  "Título corregido: en el PDF oficial aparece duplicado":"Title corrected: it appears duplicated in the official PDF"};
+const evTxt = s => LANG==="en" ? (EV_EN[s] || s) : s;
+const noteTxt = s => LANG==="en" ? (NOTE_EN[s] || s) : s;
+const salaTxt = s => LANG==="en" ? String(s||"").replace(/^Sala\b/,"Room").replace(/^Pósters$/,"Posters") : (s||"");
 const PALETTE = ["#9b2c3a","#1f5f7a","#2e7d4f","#8a5a00","#5b3f8c","#a03d6b","#2b6f6a","#6e4b2a","#3f5fa8","#8c3f2b","#4b6b1f","#7a2f6e","#2f4f5f","#9a6a1a","#5a2f2f","#1f7a6e","#6a2fa0","#555"];
 const sesColor = {};
 
@@ -309,7 +429,7 @@ function parseCSV(t){
 const LIVE_KEY = "mecom2026.live";
 const REFRESH_MS = 5 * 60 * 1000;
 const sync = { estado: CSV_URL ? "inicio" : "embebido", ok: null, intento: null, cargando: false, visto: false };
-const fmtFecha = d => new Date(d).toLocaleString("es-AR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+const fmtFecha = d => new Date(d).toLocaleString(T("locale"),{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
 
 function parseLive(text){
   // Google Sheets puede devolver horas como "8:00:00" y fechas como "10/11/2026": se normalizan.
@@ -332,17 +452,17 @@ function cambios(viejos, nuevos){
 function avisar(cs){
   if(!cs.length) return;
   const mios = cs.filter(c => favs.has(c.id));
-  let msg = "Programa actualizado", warn = false;
+  let msg = T("nUpd"), warn = false;
   if(mios.length){
     warn = true;
     const c = mios[0], it = c.ahora || c.antes;
     const nombre = `#${it.id}` + (it.titulo ? ` (${it.titulo.length>48 ? it.titulo.slice(0,46)+"…" : it.titulo})` : "");
-    if(!c.ahora) msg = `Se quitó del programa una charla de tu agenda: ${nombre}.`;
+    if(!c.ahora) msg = T("nRemoved", nombre);
     else if(c.antes && (c.antes.dia!==c.ahora.dia || c.antes.inicio!==c.ahora.inicio))
-      msg = `Cambió el horario de una charla de tu agenda: ${nombre}, ahora ${DIAS_L[c.ahora.dia]||c.ahora.dia} a las ${c.ahora.inicio}.`;
-    else msg = `Se actualizó una charla de tu agenda: ${nombre}.`;
-    if(mios.length > 1) msg += ` Hay ${mios.length} charlas de tu agenda con cambios.`;
-  } else msg += ` (${cs.length} ${cs.length==1?"cambio":"cambios"}).`;
+      msg = T("nMoved", nombre, DIAS_L[c.ahora.dia]||c.ahora.dia, c.ahora.inicio);
+    else msg = T("nChanged", nombre);
+    if(mios.length > 1) msg += T("nMany", mios.length);
+  } else msg += T("nChanges", cs.length);
   $("#noticeTxt").textContent = msg;
   $("#notice").classList.toggle("warn", warn);
   $("#notice").classList.add("show");
@@ -384,26 +504,27 @@ async function tryLive(manual){
   }catch(e){ resultado = navigator.onLine === false ? "offline" : "error"; }
   sync.estado = resultado === "ok" ? "ok" : (navigator.onLine === false ? "offline" : resultado);
   sync.cargando = false; renderCfg(); updFooter();
-  if(manual) toast(resultado === "ok" ? "Programa al día" : "Sin conexión: se muestra la última versión guardada");
+  if(manual) toast(resultado === "ok" ? T("tOk") : T("tOffline"));
 }
 function updFooter(){
   const n = D.items.filter(isTalk).length;
-  const f = sync.ok ? `actualizado ${fmtFecha(sync.ok)}` : (D.fuente === "copia guardada" ? "copia guardada" : `versión ${D.version}`);
-  $("#dataInfo").textContent = `${n} trabajos · ${f}`;
+  const f = sync.ok ? T("updAt", fmtFecha(sync.ok)) : (D.fuente === "copia guardada" ? T("savedCopy") : T("version", D.version));
+  $("#dataInfo").textContent = `${T("works", n)} · ${f}`;
 }
 function renderCfg(){
   const dark = document.documentElement.dataset.theme === "dark";
   $("#cfgTheme").setAttribute("aria-checked", dark);
   $("#updIco").classList.toggle("spin", sync.cargando);
   let h;
-  if(!CSV_URL) h = `Datos incluidos en la app (versión ${esc(D.version)}).`;
+  if(!CSV_URL) h = T("iEmb", esc(D.version));
   else{
-    h = sync.ok ? `Última actualización: <b>${fmtFecha(sync.ok)}</b>` : `Todavía no se pudo descargar el programa en vivo; se muestra la versión incluida en la app (${esc(D.version)}).`;
-    if(sync.cargando) h += `<br>Buscando cambios…`;
-    else if(sync.estado === "offline") h += `<br><span class="off">Sin conexión: se muestra la última versión guardada.</span>`;
-    else if(sync.estado === "error" || sync.estado === "invalido") h += `<br><span class="off">No se pudo actualizar; se muestra la última versión guardada.</span>`;
-    else if(sync.estado === "ok") h += `<br>El programa se revisa solo cada 5 minutos y al volver a la app.`;
+    h = sync.ok ? T("iLast", fmtFecha(sync.ok)) : T("iNever", esc(D.version));
+    if(sync.cargando) h += `<br>${T("iLoading")}`;
+    else if(sync.estado === "offline") h += `<br><span class="off">${T("iOffline")}</span>`;
+    else if(sync.estado === "error" || sync.estado === "invalido") h += `<br><span class="off">${T("iErr")}</span>`;
+    else if(sync.estado === "ok") h += `<br>${T("iOk")}`;
   }
+  document.querySelectorAll(".lang button").forEach(b => { b.classList.toggle("on", b.dataset.lang === LANG); b.setAttribute("aria-checked", b.dataset.lang === LANG); });
   $("#cfgInfo").innerHTML = h;
 }
 // ---------- Utilidades ----------
@@ -413,32 +534,34 @@ const pastCls = (it, now) => isPast(it, now) ? " past" : "";
 const isPlen = it => it.tipo === "evento" && /plenaria/i.test(it.titulo);
 const isTalk = it => it.tipo === "charla" || it.tipo === "poster";
 const key = it => it.dia + " " + it.inicio;
-function sesName(c){ return (D.sesiones[c] || c || ""); }
+function sesName(c){ return (LANG==="en" && SES_EN[c] ? SES_EN[c][0] : (D.sesiones[c] || c || "")); }
+function sesCorto(c){ return LANG==="en" && SES_EN[c] ? SES_EN[c][1] : ((D.sesCorto||{})[c] || sesName(c) || "").toUpperCase(); }
 function chip(c){ if(!c) return ""; const pc=(D.sesColor||{})[c]; return `<span class="chip" style="background:${pc||sesColor[c]||"#555"};color:${pc?"#151515":"#fff"}" title="${esc(sesName(c))}">${esc(c)}</span>`; }
 function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),1800); }
 function updBadge(){ $("#favCount").textContent = favs.size; }
 
 function cardHTML(it, opts={}){
   const f = favs.has(it.id);
-  const t = it.titulo ? `<div class="title">${esc(it.titulo)}</div>` : `<div class="title missing">Título a confirmar (trabajo ${esc(it.id)})</div>`;
+  const t = it.titulo ? `<div class="title">${esc(it.titulo)}</div>` : `<div class="title missing">${T("tTbc", esc(it.id))}</div>`;
   return `<div class="card ${f?"fav":""}${pastCls(it)}" data-id="${esc(it.id)}">
-    <div class="meta">${opts.showTime?`<b>${esc(it.inicio)}</b>`:""}<span class="sala">${esc(it.sala)}</span>${chip(it.sesion)}<span>#${esc(it.id)}</span></div>
-    <button class="star" data-star="${esc(it.id)}" aria-label="Agregar a mi agenda">${f?"★":"☆"}</button>
+    <div class="meta">${opts.showTime?`<b>${esc(it.inicio)}</b>`:""}<span class="sala">${esc(salaTxt(it.sala))}</span>${chip(it.sesion)}<span>#${esc(it.id)}</span></div>
+    <button class="star" data-star="${esc(it.id)}" aria-label="${T("addAg")}">${f?"★":"☆"}</button>
     ${t}
     ${it.autores?`<div class="authors">${esc(it.autores)}</div>`:""}
-    ${opts.conflict?`<div class="conflict">⚠ Superpuesta con otra charla de tu agenda</div>`:""}
+    ${opts.conflict?`<div class="conflict">${T("overlap")}</div>`:""}
   </div>`;
 }
 function eventHTML(it){
-  const span = `${esc(it.inicio)}${it.fin?"–"+esc(it.fin):""}${it.sala?" · "+esc(it.sala):""}`;
-  if(!isPlen(it)) return `<div class="event${pastCls(it)}"><b>${esc(it.titulo)}</b><span>${span}</span></div>`;
+  const span = `${esc(it.inicio)}${it.fin?"–"+esc(it.fin):""}${it.sala?" · "+esc(salaTxt(it.sala)):""}`;
+  const nota = it.notas ? `<div class="evnote">${esc(noteTxt(it.notas))}</div>` : "";
+  if(!isPlen(it)) return `<div class="event${pastCls(it)}"><b>${esc(evTxt(it.titulo))}${nota}</b><span>${span}</span></div>`;
   const k = "ev:"+it.id, o = open.has(k);
-  const pend = `<span class="pend">A confirmar</span>`;
-  return `<div class="event click plen${o?" open":""}${pastCls(it)}" data-open="${k}" role="button" aria-expanded="${o}"><b class="tt">${esc(it.titulo)}<span class="chev">▾</span></b><span>${span}</span></div>`
+  const pend = `<span class="pend">${T("tbc")}</span>`;
+  return `<div class="event click plen${o?" open":""}${pastCls(it)}" data-open="${k}" role="button" aria-expanded="${o}"><b class="tt">${esc(evTxt(it.titulo))}<span class="chev">▾</span></b><span>${span}</span></div>`
     + (o ? `<div class="ev-info${pastCls(it)}"><dl>
-        <dt>Título</dt><dd>${it.tema?esc(it.tema):pend}</dd>
-        <dt>Disertante</dt><dd>${it.disertante?esc(it.disertante):pend}</dd>
-        <dt>Descripción</dt><dd>${it.descripcion?esc(it.descripcion):`<span class="pend">La información de esta actividad se publicará próximamente.</span>`}</dd>
+        <dt>${T("plTema")}</dt><dd>${it.tema?esc(it.tema):pend}</dd>
+        <dt>${T("plDis")}</dt><dd>${it.disertante?esc(it.disertante):pend}</dd>
+        <dt>${T("plDesc")}</dt><dd>${it.descripcion?esc(it.descripcion):`<span class="pend">${T("plSoon")}</span>`}</dd>
       </dl></div>` : "");
 }
 
@@ -451,11 +574,11 @@ function renderProgram(){
   const items = D.items.filter(it => {
     if(!isTalk(it)) return false;
     if(state.ses && it.sesion !== state.ses) return false;
-    const hay = norm(`${it.titulo} ${it.autores} ${it.id} ${it.sesion} ${sesName(it.sesion)}`);
+    const hay = norm(`${it.titulo} ${it.autores} ${it.id} ${it.sesion} ${D.sesiones[it.sesion]||""} ${(SES_EN[it.sesion]||[""])[0]}`);
     return words.every(w => hay.includes(w));
   }).sort((a,b)=> key(a).localeCompare(key(b)) || salaN(a.sala)-salaN(b.sala));
   const nT = items.length;
-  $("#count").textContent = `${nT} ${nT==1?"presentación":"presentaciones"} en todo el congreso`;
+  $("#count").textContent = T("presAll", nT);
   document.querySelectorAll(".days button").forEach(b=>b.classList.remove("on"));
   let html="", last="", lastDay="";
   for(const it of items){
@@ -463,7 +586,7 @@ function renderProgram(){
     if(it.inicio!==last){ html += `<div class="slot">${esc(it.inicio)}</div>`; last=it.inicio; }
     html += cardHTML(it);
   }
-  $("#list").innerHTML = html || `<div class="empty">No hay resultados con esos filtros.</div>`;
+  $("#list").innerHTML = html || `<div class="empty">${T("noRes")}</div>`;
 }
 
 const salaN = s => parseInt(String(s).replace(/\D/g,"")) || 99;
@@ -488,7 +611,7 @@ function renderBlocks(){
     grp.rows.get(k).items.push(it);
   }
   const nT = day.filter(isTalk).length;
-  $("#count").textContent = `${nT} ${nT==1?"presentación":"presentaciones"}`;
+  $("#count").textContent = T("pres", nT);
   let h = "";
   for(const s of segs){
     if(s.ev){ h += eventHTML(s.ev); continue; }
@@ -498,9 +621,9 @@ function renderBlocks(){
       if(r.ev){ h += eventHTML(r.ev); continue; }
       const c = (D.sesColor||{})[r.sesion] || "#ccc", o = open.has(r.k);
       const past = r.items.every(it => isPast(it, now)) ? " past" : "";
-      const nombre = ((D.sesCorto||{})[r.sesion] || sesName(r.sesion) || "").toUpperCase();
+      const nombre = sesCorto(r.sesion);
       h += `<div class="blk${o?" open":""}${past}" data-open="${esc(r.k)}" style="background:${c}" role="button" aria-expanded="${o}">
-              <span class="nm">${esc(r.sesion)} | ${esc(nombre)}</span><span class="sl">${esc(r.sala)}</span><span class="chev">▾</span></div>`;
+              <span class="nm">${esc(r.sesion)} | ${esc(nombre)}</span><span class="sl">${esc(salaTxt(r.sala))}</span><span class="chev">▾</span></div>`;
       if(o) h += `<div class="blk-body" style="--c:${c}">` + r.items.sort((a,b)=>a.inicio.localeCompare(b.inicio)).map(it=>cardHTML(it,{showTime:true})).join("") + `</div>`;
     }
     h += `</div>`;
@@ -520,7 +643,7 @@ function renderNow(){
   $("#clock").textContent = hm;
   const today = D.items.filter(it => it.dia === dia);
   if(!today.length){
-    $("#nowMsg").textContent = dia < "2026-11-10" ? "El congreso empieza el martes 10 de noviembre. Activá la simulación para probar esta vista." : "No hay actividades programadas para hoy.";
+    $("#nowMsg").textContent = dia < "2026-11-10" ? T("notStarted") : T("noToday");
     $("#nowList").innerHTML = ""; return;
   }
   $("#nowMsg").textContent = DIAS_L[dia] || dia;
@@ -528,10 +651,10 @@ function renderNow(){
   const starts = [...new Set(today.filter(it => it.inicio > hm).map(it => it.inicio))].sort();
   const next = starts.length ? today.filter(it => it.inicio === starts[0]) : [];
   const sortS = a => a.sort((x,y)=> isTalk(x)-isTalk(y) || x.sala.localeCompare(y.sala,undefined,{numeric:true}));
-  let h = `<h3 class="sec">En curso</h3>` + (live.length ? sortS(live).map(it => isTalk(it)?cardHTML(it,{showTime:true}):eventHTML(it)).join("") : `<div class="empty" style="padding:14px">Nada en curso en este momento.</div>`);
-  if(next.length) h += `<h3 class="sec">A continuación · ${esc(starts[0])}</h3>` + sortS(next).map(it => isTalk(it)?cardHTML(it,{showTime:true}):eventHTML(it)).join("");
+  let h = `<h3 class="sec">${T("live")}</h3>` + (live.length ? sortS(live).map(it => isTalk(it)?cardHTML(it,{showTime:true}):eventHTML(it)).join("") : `<div class="empty" style="padding:14px">${T("nothingLive")}</div>`);
+  if(next.length) h += `<h3 class="sec">${T("next", esc(starts[0]))}</h3>` + sortS(next).map(it => isTalk(it)?cardHTML(it,{showTime:true}):eventHTML(it)).join("");
   const myNext = today.filter(it => favs.has(it.id) && it.inicio > hm).sort((a,b)=>a.inicio.localeCompare(b.inicio));
-  if(myNext.length) h += `<h3 class="sec">Lo próximo de tu agenda hoy</h3>` + myNext.map(it=>cardHTML(it,{showTime:true})).join("");
+  if(myNext.length) h += `<h3 class="sec">${T("myNext")}</h3>` + myNext.map(it=>cardHTML(it,{showTime:true})).join("");
   $("#nowList").innerHTML = h;
 }
 
@@ -539,7 +662,7 @@ function renderNow(){
 function myItems(){ return D.items.filter(it => favs.has(it.id)).sort((a,b)=> key(a).localeCompare(key(b)) || a.sala.localeCompare(b.sala,undefined,{numeric:true})); }
 function renderAgenda(){
   const my = myItems();
-  if(!my.length){ $("#agendaList").innerHTML = `<div class="empty">Todavía no marcaste charlas.<br>Tocá ☆ en cualquier presentación para sumarla acá.</div>`; return; }
+  if(!my.length){ $("#agendaList").innerHTML = `<div class="empty">${T("agEmpty")}</div>`; return; }
   const cnt = {}; my.forEach(it => cnt[key(it)] = (cnt[key(it)]||0)+1);
   let h="", lastDay="";
   for(const it of my){
@@ -555,18 +678,18 @@ function openSheet(id){
   const f = favs.has(id);
   $("#sheet").innerHTML = `
     <div class="meta">${chip(it.sesion)}<span>${esc(sesName(it.sesion))}</span></div>
-    <h2>${esc(it.titulo || "Título a confirmar")}</h2>
+    <h2>${esc(it.titulo || T("tTbcShort"))}</h2>
     <div class="authors">${esc(it.autores || "")}</div>
     <dl>
-      <dt>Día</dt><dd>${esc(DIAS_L[it.dia]||it.dia)}</dd>
-      <dt>Horario</dt><dd>${esc(it.inicio)}${it.fin?"–"+esc(it.fin):""}</dd>
-      <dt>Sala</dt><dd>${esc(it.sala)}</dd>
-      <dt>Trabajo</dt><dd>#${esc(it.id)}</dd>
-      ${it.notas?`<dt>Notas</dt><dd>${esc(it.notas)}</dd>`:""}
+      <dt>${T("dDay")}</dt><dd>${esc(DIAS_L[it.dia]||it.dia)}</dd>
+      <dt>${T("dTime")}</dt><dd>${esc(it.inicio)}${it.fin?"–"+esc(it.fin):""}</dd>
+      <dt>${T("dRoom")}</dt><dd>${esc(salaTxt(it.sala))}</dd>
+      <dt>${T("dPaper")}</dt><dd>#${esc(it.id)}</dd>
+      ${it.notas?`<dt>${T("dNotes")}</dt><dd>${esc(noteTxt(it.notas))}</dd>`:""}
     </dl>
     <div class="toolbar">
-      <button class="btn ${f?"":"solid"}" data-star="${esc(id)}">${f?"Quitar de mi agenda":"★ Agregar a mi agenda"}</button>
-      <button class="btn" id="sheetClose">Cerrar</button>
+      <button class="btn ${f?"":"solid"}" data-star="${esc(id)}">${f?T("rmAg"):T("addAgStar")}</button>
+      <button class="btn" id="sheetClose">${T("close")}</button>
     </div>`;
   $("#sheet").classList.add("open"); $("#sheetBg").classList.add("open");
 }
@@ -581,33 +704,33 @@ function icsText(){
     "BEGIN:VEVENT", `UID:mecom2026-${it.id}@programa`, `DTSTAMP:${stamp}`,
     `DTSTART;TZID=America/Argentina/Mendoza:${dt(it.dia,it.inicio)}`,
     `DTEND;TZID=America/Argentina/Mendoza:${dt(it.dia,it.fin||it.inicio)}`,
-    `SUMMARY:${fold(`[${it.sesion}] ${it.titulo || "Trabajo "+it.id}`)}`,
-    `LOCATION:${fold(`${it.sala} · UTN FRM, Rodríguez 273, Mendoza`)}`,
-    `DESCRIPTION:${fold(`${it.autores||""}\nTrabajo #${it.id} · ${sesName(it.sesion)}`)}`,
+    `SUMMARY:${fold(`[${it.sesion}] ${it.titulo || T("paper", it.id)}`)}`,
+    `LOCATION:${fold(`${salaTxt(it.sala)} · UTN FRM, Rodríguez 273, Mendoza`)}`,
+    `DESCRIPTION:${fold(`${it.autores||""}\n${T("paperN", it.id)} · ${sesName(it.sesion)}`)}`,
     "END:VEVENT"].join("\r\n"));
   return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//MECOM2026//Programa//ES","CALSCALE:GREGORIAN",
     "BEGIN:VTIMEZONE","TZID:America/Argentina/Mendoza","BEGIN:STANDARD","DTSTART:19700101T000000","TZOFFSETFROM:-0300","TZOFFSETTO:-0300","TZNAME:-03","END:STANDARD","END:VTIMEZONE",
     ...ev, "END:VCALENDAR"].join("\r\n");
 }
 async function exportIcs(){
-  if(!favs.size) return toast("Tu agenda está vacía");
-  const data = icsText(), filename = "MECOM2026_mi_agenda.ics";
+  if(!favs.size) return toast(T("tEmpty"));
+  const data = icsText(), filename = T("icsFile");
   try{
     const dl = window.claude ? await window.claude.use("downloads") : null;
     if(dl){ await dl.save({filename, data}); return; }
-  }catch(e){ if(window.claude) return toast("Descarga cancelada"); }
+  }catch(e){ if(window.claude) return toast(T("tCancel")); }
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([data],{type:"text/calendar"})); a.download = filename;
   document.body.appendChild(a); a.click(); a.remove();
 }
 async function copyList(){
-  if(!favs.size) return toast("Tu agenda está vacía");
-  let last="", txt="MI AGENDA · MECOM 2026\n";
+  if(!favs.size) return toast(T("tEmpty"));
+  let last="", txt=T("copyHead")+"\n";
   for(const it of myItems()){
     if(it.dia!==last){ txt += `\n${DIAS_L[it.dia]}\n`; last=it.dia; }
-    txt += `${it.inicio} · ${it.sala} · [${it.sesion}] ${it.titulo || "Trabajo "+it.id}\n`;
+    txt += `${it.inicio} · ${salaTxt(it.sala)} · [${it.sesion}] ${it.titulo || T("paper", it.id)}\n`;
   }
-  try{ await navigator.clipboard.writeText(txt); toast("Copiado al portapapeles"); }catch(e){ toast("No se pudo copiar"); }
+  try{ await navigator.clipboard.writeText(txt); toast(T("tCopied")); }catch(e){ toast(T("tNoCopy")); }
 }
 
 // ---------- Eventos ----------
@@ -619,7 +742,7 @@ function render(){
 document.addEventListener("click", e => {
   const s = e.target.closest("[data-star]");
   if(s){ e.stopPropagation(); const id=s.dataset.star;
-    if(favs.has(id)){ favs.delete(id); toast("Quitada de tu agenda"); } else { favs.add(id); toast("Agregada a tu agenda ★"); }
+    if(favs.has(id)){ favs.delete(id); toast(T("tRm")); } else { favs.add(id); toast(T("tAdd")); }
     saveFavs(); render(); if($("#sheet").classList.contains("open")) openSheet(id); return; }
   const tab = e.target.closest("nav.tabs button");
   if(tab){ state.tab = tab.dataset.tab;
@@ -661,24 +784,21 @@ $("#cfgUpd").addEventListener("click", async () => {
   window._updManual = true; setTimeout(() => window._updManual = false, 8000);
   if(window._versionNueva) return recargar();
   if(window._swReg){ try{ await window._swReg.update(); }catch(e){} }   // también busca una versión nueva de la app
-  if(CSV_URL) tryLive(true); else toast("Esta vista previa usa los datos incluidos en la app");
+  if(CSV_URL) tryLive(true); else toast(T("tPreview"));
 });
 $("#noticeX").addEventListener("click", () => $("#notice").classList.remove("show"));
 
 // ---------- Canal de WhatsApp ----------
 // Pegar acá el link del canal cuando esté creado (por ejemplo "https://whatsapp.com/channel/XXXX").
 const WHATSAPP_URL = "";
-if(WHATSAPP_URL){ $("#cfgWa").href = WHATSAPP_URL; $("#waSub").textContent = "Novedades y avisos del congreso"; }
-else $("#cfgWa").classList.add("pronto");
-$("#cfgWa").addEventListener("click", e => { if(!WHATSAPP_URL){ e.preventDefault(); toast("El canal de WhatsApp estará disponible pronto"); } });
+if(WHATSAPP_URL) $("#cfgWa").href = WHATSAPP_URL; else $("#cfgWa").classList.add("pronto");
+$("#cfgWa").addEventListener("click", e => { if(!WHATSAPP_URL){ e.preventDefault(); toast(T("waToast")); } });
 
 // ---------- Ayuda (se muestra la primera vez y se reabre desde Configuración) ----------
 const HELP_KEY = "mecom2026.ayuda";
 const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 const instalada = window.matchMedia && matchMedia("(display-mode: standalone)").matches || navigator.standalone;
-$("#helpInst").innerHTML = instalada ? "¡Ya la tenés instalada! Abrila desde su ícono cuando quieras."
-  : esIOS ? "En Safari, tocá el botón <span class='k'>Compartir</span> y elegí <span class='k'>Agregar a pantalla de inicio</span>. Queda como una app más y funciona sin internet."
-  : "En Chrome, abrí el menú <span class='k'>⋮</span> y elegí <span class='k'>Instalar app</span> o <span class='k'>Agregar a la pantalla principal</span>. Queda como una app más y funciona sin internet.";
+const instTxt = () => T(instalada ? "instDone" : esIOS ? "instIOS" : "instAnd");
 function abrirAyuda(){ toggleCfg(false); $("#help").classList.add("open"); document.body.classList.add("noscroll"); }
 function cerrarAyuda(){ $("#help").classList.remove("open"); document.body.classList.remove("noscroll"); try{ localStorage.setItem(HELP_KEY,"1"); }catch(e){} }
 $("#cfgHelp").addEventListener("click", abrirAyuda);
@@ -697,10 +817,29 @@ setInterval(() => { if(document.visibilityState === "visible") tryLive(); }, REF
 $("#btnCopy").addEventListener("click", copyList);
 $("#btnClear").addEventListener("click", () => {
   const b=$("#btnClear");
-  if(b.dataset.armed){ favs.clear(); saveFavs(); renderAgenda(); b.textContent="Vaciar"; delete b.dataset.armed; }
-  else { b.dataset.armed=1; b.textContent="¿Seguro? Tocá de nuevo"; setTimeout(()=>{b.textContent="Vaciar"; delete b.dataset.armed;},3000); }
+  if(b.dataset.armed){ favs.clear(); saveFavs(); renderAgenda(); b.textContent=T("clear"); delete b.dataset.armed; }
+  else { b.dataset.armed=1; b.textContent=T("clearSure"); setTimeout(()=>{b.textContent=T("clear"); delete b.dataset.armed;},3000); }
 });
 setInterval(render, 60000);
+
+// ---------- Aplicar idioma ----------
+function applyLang(){
+  document.documentElement.lang = LANG;
+  document.querySelectorAll("[data-i18n]").forEach(el => el.textContent = T(el.dataset.i18n));
+  document.querySelectorAll("[data-i18n-html]").forEach(el => el.innerHTML = T(el.dataset.i18nHtml));
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => el.placeholder = T(el.dataset.i18nPh));
+  document.querySelectorAll("[data-i18n-aria]").forEach(el => { el.setAttribute("aria-label", T(el.dataset.i18nAria)); el.title = T(el.dataset.i18nAria); });
+  $("#cfg").setAttribute("aria-label", T("cfg"));
+  $("#waSub").textContent = WHATSAPP_URL ? T("waOn") : T("waSoon");
+  $("#helpInst").innerHTML = instTxt();
+  if($("#sheet").classList.contains("open")) closeSheet();
+}
+function setLang(l){
+  if(l !== "es" && l !== "en") return;
+  LANG = l; try{ localStorage.setItem(LANG_KEY, l); }catch(e){}
+  applyLang(); init(); renderCfg();
+}
+document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", e => { e.stopPropagation(); setLang(b.dataset.lang); }));
 
 // ---------- Inicio ----------
 function init(){
@@ -708,14 +847,15 @@ function init(){
   const dias = [...new Set(D.items.map(it=>it.dia))].sort();
   const {dia:hoy} = nowParts();
   state.day = state.day && dias.includes(state.day) ? state.day : (dias.includes(hoy) ? hoy : dias[0]);
-  $("#days").innerHTML = dias.map(d => `<button data-day="${d}" class="${d===state.day?"on":""}"><b>${DIAS[d]||d}</b><span>${d.slice(8)} nov</span></button>`).join("");
+  $("#days").innerHTML = dias.map(d => `<button data-day="${d}" class="${d===state.day?"on":""}"><b>${DIAS[d]||d}</b><span>${monTxt(d)}</span></button>`).join("");
   $("#simDay").innerHTML = dias.map(d => `<option value="${d}">${DIAS_L[d]||d}</option>`).join("");
   const sesUsed = [...new Set(D.items.filter(isTalk).map(it=>it.sesion))].sort();
-  $("#fSes").innerHTML = `<option value="">Todas las sesiones</option>` + sesUsed.map(c=>`<option value="${esc(c)}">${esc(c)} · ${esc(sesName(c))}</option>`).join("");
+  $("#fSes").innerHTML = `<option value="">${T("allSes")}</option>` + sesUsed.map(c=>`<option value="${esc(c)}">${esc(c)} · ${esc(sesName(c))}</option>`).join("");
+  $("#fSes").value = state.ses;
   updFooter();
   updBadge(); render();
 }
-init(); tryLive();
+applyLang(); init(); renderCfg(); tryLive();
 // Funciona sin conexión cuando la app está publicada en un sitio propio (no aplica dentro de Claude).
 if("serviceWorker" in navigator && window.isSecureContext && /^https?:$/.test(location.protocol)){
   const habiaControl = !!navigator.serviceWorker.controller;
@@ -726,7 +866,7 @@ if("serviceWorker" in navigator && window.isSecureContext && /^https?:$/.test(lo
     if(!habiaControl) return;
     window._versionNueva = true;
     if(document.visibilityState === "hidden" || window._updManual) recargar();
-    else { $("#noticeTxt").textContent = "Hay una nueva versión de la app. Se aplica sola al volver a abrirla, o tocá ⚙ › Actualizar.";
+    else { $("#noticeTxt").textContent = T("nNewVer");
            $("#notice").classList.remove("warn"); $("#notice").classList.add("show"); }
   });
   document.addEventListener("visibilitychange", () => { if(window._versionNueva && document.visibilityState === "hidden") recargar(); });

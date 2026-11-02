@@ -12,6 +12,11 @@ Web del programa del XLII Congreso Argentino de Mecánica Computacional (MECOM 2
 - Sin internet muestra la última versión guardada (nunca queda en blanco).
 - Panel de configuración (engranaje): modo oscuro, actualizar, ayuda y canal de WhatsApp.
 - Ventana de ayuda que aparece la primera vez.
+- En español (predeterminado) e inglés; el idioma se elige en la ventana de ayuda o en Configuración.
+  Se traduce toda la interfaz, las sesiones, las salas y las actividades generales; los títulos y autores
+  de los trabajos quedan como en el programa oficial. Las traducciones están en `fuente/app.html`
+  (`I18N`, `SES_EN`, `EV_EN`, `NOTE_EN`): si se agrega una actividad nueva en la planilla, conviene
+  sumar su traducción en `EV_EN` (si no, se muestra en español).
 
 ## Canal de WhatsApp
 
