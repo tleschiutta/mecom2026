@@ -27,7 +27,7 @@ Cuando exista el canal, pegar el link en `WHATSAPP_URL` dentro de `fuente/app.ht
 
 ## Datos
 
-Fuente: programa oficial publicado por AMCA (`MECOM_2026_Programa_Dias_y_Trabajos_A4.pdf`).
+Fuente: programa oficial publicado por AMCA (`MECOM_2026_Programa_Detallado_rev08.pdf`, noviembre 2026).
 
 La app lee al abrir la planilla de Google **MECOM2026_Programa_BD** (hoja `programa`, publicada como CSV).
 Para corregir algo alcanza con editar la planilla: los cambios aparecen en la app en pocos minutos.

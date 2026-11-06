@@ -315,7 +315,7 @@ const I18N = {
   instAnd:"En Chrome, abrí el menú <span class='k'>⋮</span> y elegí <span class='k'>Instalar app</span> o <span class='k'>Agregar a la pantalla principal</span>. Queda como una app más y funciona sin internet.",
   pres:n => `${n} ${n==1?"presentación":"presentaciones"}`, presAll:n => `${n} ${n==1?"presentación":"presentaciones"} en todo el congreso`,
   noRes:"No hay resultados con esos filtros.", tbc:"A confirmar", tTbc:id => `Título a confirmar (trabajo ${id})`, tTbcShort:"Título a confirmar",
-  plTema:"Título", plDis:"Disertante", plDesc:"Descripción", plSoon:"La información de esta actividad se publicará próximamente.",
+  plTema:"Título", plDis:"Disertante", plPres:"Presenta", plDesc:"Descripción", plSoon:"La información de esta actividad se publicará próximamente.",
   addAg:"Agregar a mi agenda", addAgStar:"★ Agregar a mi agenda", rmAg:"Quitar de mi agenda", overlap:"⚠ Superpuesta con otra charla de tu agenda",
   dDay:"Día", dTime:"Horario", dRoom:"Sala", dPaper:"Trabajo", dNotes:"Notas",
   notStarted:"El congreso empieza el martes 10 de noviembre. Activá la simulación para probar esta vista.", noToday:"No hay actividades programadas para hoy.",
@@ -354,7 +354,7 @@ const I18N = {
   instAnd:"In Chrome, open the <span class='k'>⋮</span> menu and choose <span class='k'>Install app</span> or <span class='k'>Add to Home screen</span>. It works like any other app, even offline.",
   pres:n => `${n} ${n==1?"presentation":"presentations"}`, presAll:n => `${n} ${n==1?"presentation":"presentations"} in the whole congress`,
   noRes:"No results for these filters.", tbc:"To be confirmed", tTbc:id => `Title to be confirmed (paper ${id})`, tTbcShort:"Title to be confirmed",
-  plTema:"Title", plDis:"Speaker", plDesc:"Description", plSoon:"Information about this activity will be published soon.",
+  plTema:"Title", plDis:"Speaker", plPres:"Introduced by", plDesc:"Description", plSoon:"Information about this activity will be published soon.",
   addAg:"Add to my agenda", addAgStar:"★ Add to my agenda", rmAg:"Remove from my agenda", overlap:"⚠ Overlaps with another talk in your agenda",
   dDay:"Day", dTime:"Time", dRoom:"Room", dPaper:"Paper", dNotes:"Notes",
   notStarted:"The congress starts on Tuesday, November 10. Turn on the simulation to try this view.", noToday:"No activities scheduled for today.",
@@ -397,9 +397,10 @@ const EV_EN = {"Acreditación":"Registration","Acto de apertura":"Opening ceremo
   "Almuerzo libre":"Lunch (on your own)","Cocktail de bienvenida":"Welcome cocktail","Concurso de pósters":"Poster contest",
   "Cena de camaradería":"Conference dinner","Acto de cierre":"Closing ceremony","Salida opcional a presa Potrerillos":"Optional trip to the Potrerillos Dam",
   "Semi-plenaria Prof. Daniel Ambrosini (S04)":"Semi-plenary lecture, Prof. Daniel Ambrosini (S04)",
-  "S16: semi-plenaria o 2 trabajos (a confirmar)":"S16: semi-plenary lecture or 2 papers (to be confirmed)"};
+  "S16: semi-plenaria o 2 trabajos (a confirmar)":"S16: semi-plenary lecture or 2 papers (to be confirmed)",
+  "Semi-plenaria Prof. Juan Cebral (S03)":"Semi-plenary lecture, Prof. Juan Cebral (S03)","S16: Mesa redonda":"S16: Round table"};
 const NOTE_EN = {"En simultáneo: Reunión Cap. Fem. AMCA":"At the same time: AMCA Women's Chapter meeting","En simultáneo: Asamblea AMCA":"At the same time: AMCA General Assembly",
-  "Título corregido: en el PDF oficial aparece duplicado":"Title corrected: it appears duplicated in the official PDF"};
+  "Título corregido: en el PDF oficial aparece duplicado":"Title corrected: it appears duplicated in the official PDF","Vía Zoom":"Via Zoom"};
 const evTxt = s => LANG==="en" ? (EV_EN[s] || s) : s;
 const noteTxt = s => LANG==="en" ? (NOTE_EN[s] || s) : s;
 const salaTxt = s => LANG==="en" ? String(s||"").replace(/^Sala\b/,"Room").replace(/^Pósters$/,"Posters") : (s||"");
@@ -441,7 +442,7 @@ function parseLive(text){
   if(items.length < Math.max(20, D.items.length * 0.5)) return null; // respuesta incompleta: se descarta
   return items;
 }
-const firma = it => [it.dia,it.inicio,it.fin,it.sala,it.titulo,it.autores,it.tema,it.disertante,it.descripcion,it.notas].join("|");
+const firma = it => [it.dia,it.inicio,it.fin,it.sala,it.titulo,it.autores,it.tema,it.disertante,it.presenta,it.descripcion,it.notas].join("|");
 function cambios(viejos, nuevos){
   const a = new Map(viejos.map(it=>[it.id, it])), b = new Map(nuevos.map(it=>[it.id, it]));
   const ids = new Set([...a.keys(), ...b.keys()]);
@@ -557,10 +558,13 @@ function eventHTML(it){
   if(!isPlen(it)) return `<div class="event${pastCls(it)}"><b>${esc(evTxt(it.titulo))}${nota}</b><span>${span}</span></div>`;
   const k = "ev:"+it.id, o = open.has(k);
   const pend = `<span class="pend">${T("tbc")}</span>`;
-  return `<div class="event click plen${o?" open":""}${pastCls(it)}" data-open="${k}" role="button" aria-expanded="${o}"><b class="tt">${esc(evTxt(it.titulo))}<span class="chev">▾</span></b><span>${span}</span></div>`
+  const quien = it.disertante ? `<div class="evnote">${esc(it.disertante.replace(/\s*\(.*\)\s*$/,""))}${it.notas?" · "+esc(noteTxt(it.notas)):""}</div>` : "";
+  return `<div class="event click plen${o?" open":""}${pastCls(it)}" data-open="${k}" role="button" aria-expanded="${o}"><b><span class="tt">${esc(evTxt(it.titulo))}<span class="chev">▾</span></span>${quien}</b><span>${span}</span></div>`
     + (o ? `<div class="ev-info${pastCls(it)}"><dl>
         <dt>${T("plTema")}</dt><dd>${it.tema?esc(it.tema):pend}</dd>
         <dt>${T("plDis")}</dt><dd>${it.disertante?esc(it.disertante):pend}</dd>
+        ${it.presenta?`<dt>${T("plPres")}</dt><dd>${esc(it.presenta)}</dd>`:""}
+        ${it.notas?`<dt>${T("dNotes")}</dt><dd>${esc(noteTxt(it.notas))}</dd>`:""}
         <dt>${T("plDesc")}</dt><dd>${it.descripcion?esc(it.descripcion):`<span class="pend">${T("plSoon")}</span>`}</dd>
       </dl></div>` : "");
 }

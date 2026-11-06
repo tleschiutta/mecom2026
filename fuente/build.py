@@ -10,7 +10,7 @@ sesrows = list(csv.DictReader(open(root/"data/sesiones.csv", encoding="utf-8")))
 ses = {r["codigo"]: r["nombre"] for r in sesrows}
 sesCorto = {r["codigo"]: r.get("corto","") for r in sesrows}
 sesColor = {r["codigo"]: r.get("color","") for r in sesrows}
-cols = ["id","tipo","sesion","dia","inicio","fin","sala","titulo","autores","notas","tema","disertante","descripcion"]
+cols = ["id","tipo","sesion","dia","inicio","fin","sala","titulo","autores","notas","tema","disertante","presenta","descripcion"]
 items = [{k: (r.get(k) or "").strip() for k in cols} for r in items]
 version = datetime.date.today().isoformat()
 data = {"version": version, "sesiones": ses, "sesCorto": sesCorto, "sesColor": sesColor, "items": items}
