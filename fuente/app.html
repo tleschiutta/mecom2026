@@ -676,6 +676,38 @@ function renderAgenda(){
   $("#agendaList").innerHTML = h;
 }
 
+// ---------- Botón "Atrás" del celular ----------
+// Cada cosa que se abre (sesión desplegada, plenaria, detalle de una charla, búsqueda/filtro,
+// pestañas Ahora y Mi agenda, configuración, ayuda) es una "capa". Mientras haya alguna abierta,
+// se mantiene una entrada extra en el historial: "Atrás" cierra la última capa en lugar de salir.
+const layers = []; let guard = false, ignorePop = 0;
+function armGuard(){ if(!guard){ try{ history.pushState({mecom:1}, ""); guard = true; }catch(e){} } }
+function layerOpen(id, close){
+  const i = layers.findIndex(l => l.id === id); if(i >= 0) layers.splice(i, 1);
+  layers.push({id, close}); armGuard();
+}
+function layerDone(id){
+  const i = layers.findIndex(l => l.id === id); if(i >= 0) layers.splice(i, 1);
+  if(!layers.length && guard){ guard = false; ignorePop++; try{ history.back(); }catch(e){ ignorePop--; } }
+}
+window.addEventListener("popstate", () => {
+  if(ignorePop > 0){ ignorePop--; return; }
+  guard = false;
+  const l = layers.pop();
+  if(l){ l.close(); if(layers.length) armGuard(); }
+});
+function closeOpenKey(k){ open.delete(k); render(); }
+function setTab(name){
+  state.tab = name;
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on", b.dataset.tab===name));
+  ["programa","ahora","agenda"].forEach(t => $("#v-"+t).hidden = t!==state.tab);
+  window.scrollTo(0,0); render();
+  if(name === "programa") layerDone("tab"); else layerOpen("tab", () => setTab("programa"));
+}
+function filtroActivo(){ return !!(norm(state.q) || state.ses); }
+function syncFiltroLayer(){ if(filtroActivo()) { if(!layers.some(l=>l.id==="filtro")) layerOpen("filtro", limpiarFiltro); } else layerDone("filtro"); }
+function limpiarFiltro(){ state.q = ""; state.ses = ""; $("#q").value = ""; $("#fSes").value = ""; renderProgram(); layerDone("filtro"); }
+
 // ---------- Detalle ----------
 function openSheet(id){
   const it = D.items.find(x => x.id === id); if(!it) return;
@@ -696,8 +728,9 @@ function openSheet(id){
       <button class="btn" id="sheetClose">${T("close")}</button>
     </div>`;
   $("#sheet").classList.add("open"); $("#sheetBg").classList.add("open");
+  layerOpen("sheet", closeSheet);
 }
-function closeSheet(){ $("#sheet").classList.remove("open"); $("#sheetBg").classList.remove("open"); }
+function closeSheet(){ $("#sheet").classList.remove("open"); $("#sheetBg").classList.remove("open"); layerDone("sheet"); }
 
 // ---------- Exportar ----------
 function icsText(){
@@ -749,27 +782,30 @@ document.addEventListener("click", e => {
     if(favs.has(id)){ favs.delete(id); toast(T("tRm")); } else { favs.add(id); toast(T("tAdd")); }
     saveFavs(); render(); if($("#sheet").classList.contains("open")) openSheet(id); return; }
   const tab = e.target.closest("nav.tabs button");
-  if(tab){ state.tab = tab.dataset.tab;
-    document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on",b===tab));
-    ["programa","ahora","agenda"].forEach(t => $("#v-"+t).hidden = t!==state.tab);
-    window.scrollTo(0,0); render(); return; }
+  if(tab){ setTab(tab.dataset.tab); return; }
   const day = e.target.closest(".days button");
   if(day){ state.day = day.dataset.day; state.q = ""; state.ses = ""; $("#q").value = ""; $("#fSes").value = "";
+    // al cambiar de día se cierran las sesiones desplegadas y el filtro
+    [...open].forEach(k => { open.delete(k); layerDone("open:"+k); }); layerDone("filtro");
     window.scrollTo(0,0); render(); return; }
   if(e.target.id==="sheetClose" || e.target.id==="sheetBg"){ closeSheet(); return; }
   const op = e.target.closest("[data-open]");
-  if(op){ const k = op.dataset.open; open.has(k) ? open.delete(k) : open.add(k); render(); return; }
+  if(op){ const k = op.dataset.open;
+    if(open.has(k)){ open.delete(k); layerDone("open:"+k); }
+    else { open.add(k); layerOpen("open:"+k, () => closeOpenKey(k)); }
+    render(); return; }
   const card = e.target.closest(".card");
   if(card){ openSheet(card.dataset.id); }
 });
-$("#q").addEventListener("input", e => { state.q = e.target.value; renderProgram(); });
-$("#fSes").addEventListener("change", e => { state.ses = e.target.value; renderProgram(); });
+$("#q").addEventListener("input", e => { state.q = e.target.value; renderProgram(); syncFiltroLayer(); });
+$("#fSes").addEventListener("change", e => { state.ses = e.target.value; renderProgram(); syncFiltroLayer(); });
 ["#sim","#simDay","#simTime"].forEach(s => $(s).addEventListener("input", renderNow));
 $("#btnIcs").addEventListener("click", exportIcs);
 function toggleCfg(force){
   const o = force ?? !$("#cfg").classList.contains("open");
   $("#cfg").classList.toggle("open", o); $("#cfgBtn").setAttribute("aria-expanded", o);
-  if(o){ const r = $("#cfgBtn").getBoundingClientRect(); $("#cfg").style.top = (r.bottom + 8) + "px"; renderCfg(); }
+  if(o){ const r = $("#cfgBtn").getBoundingClientRect(); $("#cfg").style.top = (r.bottom + 8) + "px"; renderCfg(); layerOpen("cfg", () => toggleCfg(false)); }
+  else layerDone("cfg");
 }
 $("#cfgBtn").addEventListener("click", e => { e.stopPropagation(); toggleCfg(); });
 $("#cfg").addEventListener("click", e => e.stopPropagation());
@@ -803,8 +839,8 @@ const HELP_KEY = "mecom2026.ayuda";
 const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 const instalada = window.matchMedia && matchMedia("(display-mode: standalone)").matches || navigator.standalone;
 const instTxt = () => T(instalada ? "instDone" : esIOS ? "instIOS" : "instAnd");
-function abrirAyuda(){ toggleCfg(false); $("#help").classList.add("open"); document.body.classList.add("noscroll"); }
-function cerrarAyuda(){ $("#help").classList.remove("open"); document.body.classList.remove("noscroll"); try{ localStorage.setItem(HELP_KEY,"1"); }catch(e){} }
+function abrirAyuda(){ toggleCfg(false); $("#help").classList.add("open"); document.body.classList.add("noscroll"); layerOpen("help", cerrarAyuda); }
+function cerrarAyuda(){ $("#help").classList.remove("open"); document.body.classList.remove("noscroll"); try{ localStorage.setItem(HELP_KEY,"1"); }catch(e){} layerDone("help"); }
 $("#cfgHelp").addEventListener("click", abrirAyuda);
 $("#helpOk").addEventListener("click", cerrarAyuda);
 $("#helpX").addEventListener("click", cerrarAyuda);
