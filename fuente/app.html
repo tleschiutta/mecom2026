@@ -10,6 +10,8 @@
   (function(){ var t=null; try{ t=localStorage.getItem("mecom2026.tema"); }catch(e){}
     if(!t) t = (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
     document.documentElement.dataset.theme = t; })();
+  // texto de la pantalla de carga según el idioma elegido
+  document.addEventListener("DOMContentLoaded", function(){ try{ if(localStorage.getItem("mecom2026.idioma")==="en"){ var s=document.getElementById("splashTxt"); if(s) s.textContent="Loading program…"; } }catch(e){} });
 </script>
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -89,6 +91,23 @@ body.noscroll{overflow:hidden}
 .lang button.on{background:#fff;color:#1d1f23}
 .cfg .row.lg{cursor:default}
 .help .lang{margin:0 20px 2px;align-self:flex-start}
+/* Pantalla de carga */
+#splash{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  transition:opacity .5s ease, visibility 0s .5s;
+  --sp-vidrio:#bcdcff; --sp-vidrio-copa:#e3effd; --sp-borde:#9fc3ee; --sp-vino:#7a1a52}
+:root[data-theme="dark"] #splash{ --sp-vidrio:#9cc4f2; --sp-vidrio-copa:#ffffff14; --sp-borde:#6f94c4; --sp-vino:#8e2061 }
+#splash.hide{opacity:0;visibility:hidden}
+#splash svg{width:min(60vw,250px);height:auto;overflow:visible}
+#splashTxt{font-family:"Open Sans","IBM Plex Sans",sans-serif;font-weight:700;color:var(--muted);font-size:15px;letter-spacing:.3px;animation:pulso 1.4s ease-in-out infinite}
+.vino{transform-box:view-box}
+.vino-botella{animation:llenarBotella 2.3s cubic-bezier(.45,.05,.3,1) forwards}
+.vino-copa{animation:llenarCopa 1.6s cubic-bezier(.45,.05,.3,1) .7s both}
+.ola{animation:ola 1.2s linear infinite}
+@keyframes llenarBotella{from{transform:translateY(0)}to{transform:translateY(-196px)}}
+@keyframes llenarCopa{from{transform:translateY(0)}to{transform:translateY(-52px)}}
+@keyframes ola{from{transform:translateX(0)}to{transform:translateX(-80px)}}
+@keyframes pulso{0%,100%{opacity:.55}50%{opacity:1}}
+@media (prefers-reduced-motion: reduce){ .ola,#splashTxt{animation:none} .vino-botella{animation-duration:.01s} .vino-copa{animation-duration:.01s;animation-delay:0s} }
 /* Aviso de cambios en el programa */
 .notice{position:fixed;left:50%;transform:translateX(-50%);bottom:72px;z-index:55;width:min(560px,calc(100vw - 24px));
   background:#1d2a44;color:#fff;border-radius:14px;padding:12px 44px 12px 14px;font-size:14px;line-height:1.4;box-shadow:0 10px 28px #0006;display:none}
@@ -184,6 +203,39 @@ footer .credit b{color:var(--ink)}
 </style>
 </head>
 <body>
+<!-- Pantalla de carga: la botella del MECOM se llena de vino mientras se prepara el programa -->
+<div id="splash" role="status" aria-live="polite">
+  <svg viewBox="0 0 300 420" aria-hidden="true">
+    <defs>
+      <clipPath id="clipBotella"><path d="M128,28 Q128,18 138,18 L162,18 Q172,18 172,28 L173,120 Q174,150 192,165 Q210,180 210,215 L210,385 Q210,402 192,402 L108,402 Q90,402 90,385 L90,215 Q90,180 108,165 Q126,150 127,120 Z"/></clipPath>
+      <clipPath id="clipCopa"><path d="M184,212 L266,212 Q270,268 244,296 Q225,312 206,296 Q180,268 184,212 Z"/></clipPath>
+    </defs>
+    <!-- copa (detrás de la botella) -->
+    <g class="copa">
+      <path d="M184,212 L266,212 Q270,268 244,296 Q225,312 206,296 Q180,268 184,212 Z" fill="var(--sp-vidrio-copa)"/>
+      <g clip-path="url(#clipCopa)"><g transform="translate(0,312)"><g class="vino vino-copa">
+        <path class="ola" d="M150,0 q20,-6 40,0 t40,0 t40,0 t40,0 t40,0 t40,0 L390,120 L150,120 Z" fill="var(--sp-vino)"/>
+      </g></g></g>
+      <path d="M184,212 L266,212 Q270,268 244,296 Q225,312 206,296 Q180,268 184,212 Z" fill="none" stroke="var(--sp-borde)" stroke-width="3"/>
+      <rect x="222" y="304" width="6" height="80" rx="3" fill="var(--sp-borde)"/>
+      <ellipse cx="225" cy="388" rx="32" ry="6" fill="var(--sp-borde)"/>
+    </g>
+    <!-- botella -->
+    <g clip-path="url(#clipBotella)">
+      <rect x="80" y="10" width="140" height="400" fill="var(--sp-vidrio)"/>
+      <g transform="translate(0,404)"><g class="vino vino-botella">
+        <path class="ola" d="M20,0 q20,-8 40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0 L340,420 L20,420 Z" fill="var(--sp-vino)"/>
+      </g></g>
+      <rect x="120" y="10" width="60" height="82" fill="#134082"/>
+    </g>
+    <!-- etiqueta -->
+    <rect x="101" y="226" width="98" height="118" fill="#0a1a33" stroke="#134082" stroke-width="6"/>
+    <rect x="107" y="232" width="86" height="106" fill="none" stroke="#ffffff" stroke-width="1.4"/>
+    <text x="150" y="286" text-anchor="middle" font-family="'Open Sans','IBM Plex Sans',sans-serif" font-weight="700" font-size="24" fill="#fff">MECOM</text>
+    <text x="150" y="311" text-anchor="middle" font-family="'Open Sans','IBM Plex Sans',sans-serif" font-weight="700" font-size="17" fill="#7fb0ff">2026</text>
+  </svg>
+  <div id="splashTxt" data-i18n="splash">Cargando programa…</div>
+</div>
 <header>
   <div class="brand"><h1>MECOM 2026</h1>
     <button class="theme-btn" id="cfgBtn" data-i18n-aria="cfg" aria-label="Configuración" title="Configuración" aria-expanded="false" aria-controls="cfg">
@@ -322,7 +374,7 @@ const I18N = {
   live:"En curso", nothingLive:"Nada en curso en este momento.", next:h => `A continuación · ${h}`, myNext:"Lo próximo de tu agenda hoy",
   agEmpty:"Todavía no marcaste charlas.<br>Tocá ☆ en cualquier presentación para sumarla acá.",
   tEmpty:"Tu agenda está vacía", tCancel:"Descarga cancelada", tCopied:"Copiado al portapapeles", tNoCopy:"No se pudo copiar", tRm:"Quitada de tu agenda", tAdd:"Agregada a tu agenda ★",
-  tOk:"Programa al día", tOffline:"Sin conexión: se muestra la última versión guardada", tPreview:"Esta vista previa usa los datos incluidos en la app",
+  splash:"Cargando programa…", tOk:"Programa al día", tOffline:"Sin conexión: se muestra la última versión guardada", tPreview:"Esta vista previa usa los datos incluidos en la app",
   icsFile:"MECOM2026_mi_agenda.ics", copyHead:"MI AGENDA · MECOM 2026", paper:id => `Trabajo ${id}`, paperN:id => `Trabajo #${id}`,
   nUpd:"Programa actualizado", nChanges:n => ` (${n} ${n==1?"cambio":"cambios"}).`,
   nRemoved:x => `Se quitó del programa una charla de tu agenda: ${x}.`, nMoved:(x,d,h) => `Cambió el horario de una charla de tu agenda: ${x}, ahora ${d} a las ${h}.`,
@@ -361,7 +413,7 @@ const I18N = {
   live:"Now on", nothingLive:"Nothing going on right now.", next:h => `Up next · ${h}`, myNext:"Coming up in your agenda today",
   agEmpty:"You have not marked any talks yet.<br>Tap ☆ on any presentation to add it here.",
   tEmpty:"Your agenda is empty", tCancel:"Download cancelled", tCopied:"Copied to clipboard", tNoCopy:"Could not copy", tRm:"Removed from your agenda", tAdd:"Added to your agenda ★",
-  tOk:"Program is up to date", tOffline:"Offline: showing the last saved version", tPreview:"This preview uses the data included in the app",
+  splash:"Loading program…", tOk:"Program is up to date", tOffline:"Offline: showing the last saved version", tPreview:"This preview uses the data included in the app",
   icsFile:"MECOM2026_my_agenda.ics", copyHead:"MY AGENDA · MECOM 2026", paper:id => `Paper ${id}`, paperN:id => `Paper #${id}`,
   nUpd:"Program updated", nChanges:n => ` (${n} ${n==1?"change":"changes"}).`,
   nRemoved:x => `A talk in your agenda was removed from the program: ${x}.`, nMoved:(x,d,h) => `A talk in your agenda changed time: ${x}, now ${d} at ${h}.`,
@@ -690,9 +742,32 @@ function layerDone(id){
   const i = layers.findIndex(l => l.id === id); if(i >= 0) layers.splice(i, 1);
   if(!layers.length && guard){ guard = false; ignorePop++; try{ history.back(); }catch(e){ ignorePop--; } }
 }
+// Teclado del celular: si "Atrás" llega mientras se está escribiendo (o el teclado se acaba de cerrar),
+// solo se esconde el teclado y se conserva lo escrito.
+const escribiendo = () => { const a = document.activeElement; return !!a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA") && a.type !== "checkbox"; };
+let vvMax = window.visualViewport ? visualViewport.height : window.innerHeight, kbCerradoEn = 0, kbAbierto = false;
+if(window.visualViewport){
+  visualViewport.addEventListener("resize", () => {
+    const h = visualViewport.height;
+    if(h > vvMax) vvMax = h;
+    const abierto = vvMax - h > 150;
+    if(kbAbierto && !abierto){
+      kbCerradoEn = Date.now();
+      // el teclado se cerró con "Atrás" sin que llegue al historial: se quita el foco del buscador
+      if(escribiendo()) document.activeElement.blur();
+    }
+    kbAbierto = abierto;
+  });
+  window.addEventListener("orientationchange", () => { setTimeout(() => { vvMax = visualViewport.height; }, 400); });
+}
 window.addEventListener("popstate", () => {
   if(ignorePop > 0){ ignorePop--; return; }
   guard = false;
+  if(escribiendo() || kbAbierto || Date.now() - kbCerradoEn < 700){
+    if(escribiendo()) document.activeElement.blur();
+    if(layers.length) armGuard();
+    return;
+  }
   const l = layers.pop();
   if(l){ l.close(); if(layers.length) armGuard(); }
 });
@@ -846,7 +921,9 @@ $("#helpOk").addEventListener("click", cerrarAyuda);
 $("#helpX").addEventListener("click", cerrarAyuda);
 $("#help").addEventListener("click", e => { if(e.target.id === "help") cerrarAyuda(); });
 document.addEventListener("keydown", e => { if(e.key === "Escape" && $("#help").classList.contains("open")) cerrarAyuda(); });
-(function(){ let visto = null; try{ visto = localStorage.getItem(HELP_KEY); }catch(e){} if(!visto) abrirAyuda(); })();
+// la primera vez, la ayuda se abre cuando termina la pantalla de carga
+let ayudaPendiente = false;
+(function(){ let visto = null; try{ visto = localStorage.getItem(HELP_KEY); }catch(e){} if(!visto) ayudaPendiente = true; })();
 // Volver a la pestaña o a la app instalada: buscar cambios (si pasó más de 1 minuto desde el último intento).
 const quizasActualizar = () => { if(document.visibilityState === "visible" && (!sync.intento || Date.now() - sync.intento > 60000)) tryLive(); };
 document.addEventListener("visibilitychange", quizasActualizar);
@@ -895,7 +972,16 @@ function init(){
   updFooter();
   updBadge(); render();
 }
-applyLang(); init(); renderCfg(); tryLive();
+applyLang(); init(); renderCfg();
+const t0 = performance.now();
+const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+const minSplash = reduce ? 600 : 2800;
+Promise.race([tryLive(), new Promise(r => setTimeout(r, 4000))]).then(() => {
+  setTimeout(() => {
+    $("#splash").classList.add("hide");
+    setTimeout(() => { $("#splash").remove(); if(ayudaPendiente){ ayudaPendiente = false; abrirAyuda(); } }, 550);
+  }, Math.max(0, minSplash - (performance.now() - t0)));
+});
 // Funciona sin conexión cuando la app está publicada en un sitio propio (no aplica dentro de Claude).
 if("serviceWorker" in navigator && window.isSecureContext && /^https?:$/.test(location.protocol)){
   const habiaControl = !!navigator.serviceWorker.controller;
