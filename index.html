@@ -98,13 +98,9 @@ body.noscroll{overflow:hidden}
 :root[data-theme="dark"] #splash{ --sp-vidrio:#9cc4f2; --sp-vidrio-copa:#ffffff14; --sp-borde:#6f94c4; --sp-vino:#8e2061 }
 #splash.hide{opacity:0;visibility:hidden}
 #splash > *:not(.malla){position:relative;z-index:1}
-#splash .malla{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.45;clip-path:inset(var(--malla-top, 45%) 0 0 0);
-  animation:malla 2.3s cubic-bezier(.45,.05,.3,1) forwards}
+#splash .malla{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.45}
 :root[data-theme="dark"] #splash .malla{opacity:.9}
-#splash .malla .aristas{stroke:var(--sp-vino);stroke-width:2.2;stroke-linecap:round}
-#splash .malla .nodos{fill:var(--sp-vino)}
-/* misma duración y curva que el llenado de la botella: el frente de la malla sube junto con el vino */
-@keyframes malla{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(var(--malla-top, 45%) 0 0 0)}}
+
 #splash svg{width:min(60vw,250px);height:auto;overflow:visible}
 #splashTxt{background:var(--bg);padding:4px 14px;border-radius:20px;font-family:"Open Sans","IBM Plex Sans",sans-serif;font-weight:700;color:var(--muted);font-size:15px;letter-spacing:.3px;animation:pulso 1.4s ease-in-out infinite}
 .vino{transform-box:view-box}
@@ -115,7 +111,7 @@ body.noscroll{overflow:hidden}
 @keyframes llenarCopa{from{transform:translateY(0)}to{transform:translateY(-52px)}}
 @keyframes ola{from{transform:translateX(0)}to{transform:translateX(-80px)}}
 @keyframes pulso{0%,100%{opacity:.55}50%{opacity:1}}
-@media (prefers-reduced-motion: reduce){ #splash .malla{animation:none} .ola,#splashTxt{animation:none} .vino-botella{animation-duration:.01s} .vino-copa{animation-duration:.01s;animation-delay:0s} }
+@media (prefers-reduced-motion: reduce){ .ola,#splashTxt{animation:none} .vino-botella{animation-duration:.01s} .vino-copa{animation-duration:.01s;animation-delay:0s} }
 /* Aviso de cambios en el programa */
 .notice{position:fixed;left:50%;transform:translateX(-50%);bottom:72px;z-index:55;width:min(560px,calc(100vw - 24px));
   background:#1d2a44;color:#fff;border-radius:14px;padding:12px 44px 12px 14px;font-size:14px;line-height:1.4;box-shadow:0 10px 28px #0006;display:none}
@@ -245,43 +241,72 @@ footer .credit b{color:var(--ink)}
   <div id="splashTxt" data-i18n="splash">Cargando programa…</div>
 </div>
 <script>
-// Malla de elementos finitos de fondo: nodos en una grilla perturbada, triangulada.
-// Se revela de abajo hacia arriba al mismo ritmo que el vino (misma duración y curva).
+// Malla de elementos finitos de fondo: cada nodo sube desde abajo con su propia oscilación hasta su
+// posición final, y las aristas lo siguen. El ritmo acompaña al llenado de la botella y la malla
+// termina a la altura que alcanza el vino.
 (function(){
   var sp = document.getElementById("splash"); if(!sp) return;
-  var W = Math.max(320, window.innerWidth), H = Math.max(480, window.innerHeight);
-  var h = Math.max(58, Math.min(90, W / 6));              // tamaño de elemento
-  var nx = Math.ceil(W / h) + 2, ny = Math.ceil(H / h) + 2;
+  var W = window.innerWidth, H = window.innerHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+  var cv = document.createElement("canvas"); cv.className = "malla"; cv.setAttribute("aria-hidden", "true");
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  sp.insertBefore(cv, sp.firstChild);
+  var ctx = cv.getContext("2d"); if(!ctx) return; ctx.scale(dpr, dpr);
+  // altura final del vino en la pantalla (y = 208 de 420 en el dibujo de la botella)
+  var tope = H * .45, fondo = H * .8;
+  try{ var bb = sp.querySelector("svg").getBoundingClientRect(); tope = bb.top + bb.height * (208 / 420); fondo = bb.top + bb.height * (404 / 420); }catch(e){}
   var seed = 7; function rnd(){ seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
-  var P = [];
-  for(var j = 0; j < ny; j++){ P.push([]);
+  // nodos: grilla de filas desplazadas, perturbada
+  var h = Math.max(58, Math.min(90, W / 6)), nx = Math.ceil(W / h) + 2, ny = Math.ceil((H - tope) / (h * .87)) + 2;
+  var idx = [], N = [];
+  for(var j = 0; j < ny; j++){ idx.push([]);
     for(var i = 0; i < nx; i++){
       var x = (i - 1) * h + (j % 2 ? h / 2 : 0) + (rnd() - .5) * h * .55;
       var y = H - (j - .5) * h * .87 + (rnd() - .5) * h * .5;
-      P[j].push([x.toFixed(1), y.toFixed(1)]);
+      if(y < tope){ idx[j].push(-1); continue; }
+      idx[j].push(N.length);
+      N.push({x:x, y:y,
+        d: rnd() * .15,                                            // pequeño desfase entre nodos
+        f: 1.6 + rnd() * 1.4, ph: rnd() * 6.283, ax: 8 + rnd() * 14, ay: 4 + rnd() * 6});
     } }
-  var L = [], seen = {};
-  function edge(a, b){ var k = a < b ? a + "|" + b : b + "|" + a; if(seen[k]) return; seen[k] = 1;
-    var A = a.split(","), B = b.split(","); L.push('<line x1="'+A[0]+'" y1="'+A[1]+'" x2="'+B[0]+'" y2="'+B[1]+'"/>'); }
+  var E = [];
   for(var j = 0; j < ny; j++) for(var i = 0; i < nx; i++){
-    var p = P[j][i].join(",");
-    if(i + 1 < nx) edge(p, P[j][i+1].join(","));
-    if(j + 1 < ny){
-      // filas desplazadas: cada nodo se une con los dos de arriba -> triángulos
-      var o = j % 2 ? 0 : -1;
-      if(i + o >= 0) edge(p, P[j+1][i+o].join(","));
-      if(i + o + 1 < nx) edge(p, P[j+1][i+o+1].join(","));
-    }
+    var a = idx[j][i]; if(a < 0) continue;
+    if(i + 1 < nx && idx[j][i+1] >= 0) E.push([a, idx[j][i+1]]);
+    if(j + 1 < ny){ var o = j % 2 ? 0 : -1;
+      if(i + o >= 0 && idx[j+1][i+o] >= 0) E.push([a, idx[j+1][i+o]]);
+      if(i + o + 1 < nx && idx[j+1][i+o+1] >= 0) E.push([a, idx[j+1][i+o+1]]); }
   }
-  var N = [];
-  for(var j = 0; j < ny; j++) for(var i = 0; i < nx; i++) N.push('<circle cx="'+P[j][i][0]+'" cy="'+P[j][i][1]+'" r="4.2"/>');
-  var svg = '<svg class="malla" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMax slice" aria-hidden="true">'
-          + '<g class="aristas">' + L.join("") + '</g><g class="nodos">' + N.join("") + '</g></svg>';
-  sp.insertAdjacentHTML("afterbegin", svg);
-  // la malla termina a la altura que alcanza el vino en la botella (y = 208 de 420 en su dibujo)
-  try{ var b = sp.querySelector("svg:not(.malla)").getBoundingClientRect();
-       var top = b.top + b.height * (208 / 420);
-       sp.style.setProperty("--malla-top", Math.max(0, Math.min(90, top / window.innerHeight * 100)).toFixed(1) + "%"); }catch(e){}
+  // misma curva que el vino: cubic-bezier(.45,.05,.3,1)
+  function bez(p1, p2, s){ var u = 1 - s; return 3*u*u*s*p1 + 3*u*s*s*p2 + s*s*s; }
+  function ease(x){ if(x <= 0) return 0; if(x >= 1) return 1; var lo = 0, hi = 1, s = x;
+    for(var k = 0; k < 18; k++){ s = (lo + hi) / 2; if(bez(.45, .3, s) < x) lo = s; else hi = s; } return bez(.05, 1, s); }
+  // Todos los nodos suben con la misma curva que el vino; el desplazamiento inicial hace que la fila
+  // de arriba arranque al pie de la botella y llegue a la altura final del vino junto con él.
+  var DUR = 2.3 - .15, OFF = Math.max(60, fondo - tope);
+  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var color = getComputedStyle(sp).getPropertyValue("--sp-vino").trim() || "#7a1a52";
+  var X = new Float32Array(N.length), Y = new Float32Array(N.length), t0 = performance.now();
+  function frame(now){
+    if(!document.getElementById("splash")) return;
+    var t = reduce ? 99 : (now - t0) / 1000;
+    for(var n = 0; n < N.length; n++){
+      var q = N[n], e = ease((t - q.d) / DUR), k = 1 - e, w = 2 * Math.PI * q.f * t + q.ph;
+      // oscilación lateral que se amortigua al llegar; al final queda un vaivén mínimo
+      X[n] = q.x + Math.sin(w) * (q.ax * k + 1.2);
+      Y[n] = q.y + OFF * k + Math.cos(w * .8) * (q.ay * k + 1);
+    }
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.beginPath();
+    for(var m = 0; m < E.length; m++){ var a = E[m][0], b = E[m][1];
+      if(Y[a] > H + 20 && Y[b] > H + 20) continue;
+      ctx.moveTo(X[a], Y[a]); ctx.lineTo(X[b], Y[b]); }
+    ctx.stroke();
+    ctx.fillStyle = color; ctx.beginPath();
+    for(var n = 0; n < N.length; n++){ if(Y[n] > H + 10) continue; ctx.moveTo(X[n] + 4.2, Y[n]); ctx.arc(X[n], Y[n], 4.2, 0, 6.2832); }
+    ctx.fill();
+    if(!reduce) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
 <header>
