@@ -10,20 +10,13 @@ Web del programa del XLII Congreso Argentino de Mecánica Computacional (MECOM 2
 - Las actividades que ya pasaron se muestran atenuadas.
 - Se actualiza sola: relee la planilla al abrirse, al volver a la app y cada 5 minutos, y avisa si cambió una charla de "Mi agenda".
 - Sin internet muestra la última versión guardada (nunca queda en blanco).
-- Panel de configuración (engranaje): modo oscuro, actualizar, ayuda y canal de WhatsApp.
+- Panel de configuración (engranaje): idioma, modo oscuro, actualizar, ayuda, compartir (QR y WhatsApp) y volver a ver la animación.
 - Ventana de ayuda que aparece la primera vez.
 - En español (predeterminado) e inglés; el idioma se elige en la ventana de ayuda o en Configuración.
   Se traduce toda la interfaz, las sesiones, las salas y las actividades generales; los títulos y autores
   de los trabajos quedan como en el programa oficial. Las traducciones están en `fuente/app.html`
   (`I18N`, `SES_EN`, `EV_EN`, `NOTE_EN`): si se agrega una actividad nueva en la planilla, conviene
   sumar su traducción en `EV_EN` (si no, se muestra en español).
-
-## Canal de WhatsApp
-
-Cuando exista el canal, pegar el link en `WHATSAPP_URL` dentro de `fuente/app.html` y regenerar el sitio.
-- Vista "Ahora": lo que está en curso y lo que sigue en cada sala.
-- "Mi agenda": charlas marcadas con ☆, aviso de superposiciones y exportación al calendario (.ics).
-- Se puede instalar en el celular y funciona sin conexión.
 
 ## Datos
 
