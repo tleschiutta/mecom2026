@@ -184,6 +184,18 @@ main{max-width:760px;margin:0 auto;padding:12px 12px 90px}
 .ev-info dt{color:var(--muted)}
 .ev-info dd{margin:0}
 .ev-info .pend{color:var(--muted);font-style:italic}
+/* Lugar con mapa (cena) */
+.event.lugar{background:#f7f1f5;border:1px solid #ead9e4}
+:root[data-theme="dark"] .event.lugar{background:#3a2836;border-color:#53384c}
+.ev-info .mapa{display:block;width:100%;height:220px;border:0;border-radius:10px;margin-top:12px;background:var(--base-soft)}
+.maprow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.mbtn{flex:1 1 140px;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;border-radius:10px;background:var(--base);color:#fff;text-decoration:none;font-weight:600;font-size:14px}
+.mbtn.sec{background:var(--base-soft);color:var(--base-2)}
+:root[data-theme="dark"] .mbtn.sec{color:#a9c3ea}
+/* Ventana de novedades */
+.nbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+.nbtn{background:#ffffff1c;color:#fff;border:0;border-radius:10px;padding:8px 12px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;text-decoration:none}
+.nbtn.pri{background:var(--base)}
 /* Actividades que ya pasaron */
 .past{opacity:.42}
 .blk.past{opacity:.35;filter:saturate(.55)}
@@ -424,6 +436,20 @@ window.iniciarMalla();
     <div class="ft"><button id="helpOk" data-i18n="start">¡Empezar!</button></div>
   </div>
 </div>
+<div class="help" id="news" role="dialog" aria-modal="true" aria-labelledby="newsT">
+  <div class="box">
+    <div class="hd"><div><h2 id="newsT" data-i18n="nwT">¡La app se actualizó!</h2><p data-i18n="nwSub">Esto es lo nuevo:</p></div>
+      <button class="x" id="newsX" data-i18n-aria="close" aria-label="Cerrar">×</button></div>
+    <div class="bd">
+      <div class="it"><div class="ic">🔗</div><div><div data-i18n-html="nw1"></div>
+        <div class="nbtns"><button class="nbtn pri" id="newsShare" data-i18n="nwShare">Compartir ahora</button></div></div></div>
+      <div class="it"><div class="ic">🍷</div><div><div data-i18n-html="nw2"></div>
+        <div class="nbtns"><button class="nbtn pri" id="newsCena" data-i18n="nwVer">Ver en el programa</button>
+          <a class="nbtn" id="newsMaps" href="#" target="_blank" rel="noopener" data-i18n="vMaps">Abrir en Google Maps</a></div></div></div>
+    </div>
+    <div class="ft"><button id="newsOk" data-i18n="nwOk">Entendido</button></div>
+  </div>
+</div>
 <div class="notice" id="notice" role="status"><span id="noticeTxt"></span><button id="noticeX" data-i18n-aria="close" aria-label="Cerrar">×</button></div>
 
 <script>
@@ -456,6 +482,10 @@ const I18N = {
   dataSrc:"Datos: programa oficial publicado por AMCA", pdf:"Ver programa oficial (PDF)",
   lang:"Idioma", dark:"Modo oscuro", upd:"Actualizar", howto:"Cómo usar la app", share:"Compartir la app", anim:"Ver la animación", shareT:"Compartí la app", shareSub:"Mostrá este QR o mandá el link por WhatsApp.", shareWa:"Compartir por WhatsApp", shareCopy:"Copiar link", shareMore:"Más opciones…",
   shareMsg:"Programa interactivo del MECOM 2026 (Mendoza, 10 al 13 de noviembre): sesiones, búsqueda, tu agenda y lo que está pasando ahora. 👉 ", tRefresh:"Programa actualizado",
+  vLugar:"Lugar", vDir:"Dirección", vLleg:"Distancia", vLlegTxt:"A unos 10 minutos en auto del centro de Mendoza.", vMaps:"Abrir en Google Maps", vRuta:"Cómo llegar", vMapa:"Mapa de la ubicación",
+  nwT:"¡La app se actualizó!", nwSub:"Esto es lo nuevo:", nwShare:"Compartir ahora", nwVer:"Ver en el programa", nwOk:"Entendido",
+  nw1:'<b>Compartí la app con tus colegas</b>Entrá a <span class="k">⚙ Configuración</span> › <span class="k">Compartir la app</span>: ahí tenés un QR para mostrar y un botón para mandar el link por WhatsApp.',
+  nw2:'<b>Cena de camaradería · jueves 12, 21:00</b>Es en <b style="display:inline">Bodega Los Toneles</b>, Acceso Este, Lateral Norte 1360, Guaymallén (a unos 10 minutos en auto del centro). En el programa del jueves, tocá la cena para ver el mapa.',
   close:"Cerrar", hT:"Bienvenido al programa del MECOM 2026", hSub:"Todo lo que podés hacer con esta app, en un minuto.", start:"¡Empezar!",
   h1:'<b>Programa por día</b>Elegí el día arriba. Las sesiones aparecen como bloques de colores con su sala; <b style="display:inline">tocá un bloque</b> para ver sus trabajos en orden y volvé a tocarlo para cerrarlo.',
   h2:"<b>Buscar</b>Escribí un título, un autor o el número de trabajo, o elegí una sesión. Los resultados son de todo el congreso, no solo del día.",
@@ -496,6 +526,10 @@ const I18N = {
   dataSrc:"Data: official program published by AMCA", pdf:"See the official program (PDF)",
   lang:"Language", dark:"Dark mode", upd:"Refresh", howto:"How to use the app", share:"Share the app", anim:"Play the animation", shareT:"Share the app", shareSub:"Show this QR code or send the link on WhatsApp.", shareWa:"Share on WhatsApp", shareCopy:"Copy link", shareMore:"More options…",
   shareMsg:"Interactive program of MECOM 2026 (Mendoza, November 10–13): sessions, search, your agenda and what is on right now. 👉 ", tRefresh:"Program refreshed",
+  vLugar:"Venue", vDir:"Address", vLleg:"Distance", vLlegTxt:"About a 10-minute drive from downtown Mendoza.", vMaps:"Open in Google Maps", vRuta:"Directions", vMapa:"Location map",
+  nwT:"The app has been updated!", nwSub:"Here's what's new:", nwShare:"Share now", nwVer:"See it in the program", nwOk:"Got it",
+  nw1:'<b>Share the app with your colleagues</b>Go to <span class="k">⚙ Settings</span> › <span class="k">Share the app</span>: there is a QR code to show and a button to send the link via WhatsApp.',
+  nw2:'<b>Conference dinner · Thursday 12, 21:00</b>It takes place at <b style="display:inline">Bodega Los Toneles</b>, Acceso Este, Lateral Norte 1360, Guaymallén (about a 10-minute drive from downtown). In Thursday\'s program, tap the dinner to see the map.',
   close:"Close", hT:"Welcome to the MECOM 2026 program", hSub:"Everything you can do with this app, in one minute.", start:"Get started!",
   h1:'<b>Program by day</b>Pick a day at the top. Sessions appear as colored blocks with their room; <b style="display:inline">tap a block</b> to see its papers in order, and tap it again to close it.',
   h2:"<b>Search</b>Type a title, an author or the paper number, or pick a session. Results cover the whole congress, not just one day.",
@@ -689,6 +723,13 @@ const open = new Set();   // bloques y plenarias desplegados
 function isPast(it, now){ const {dia, hm} = now || nowParts(); return it.dia < dia || (it.dia === dia && (it.fin || it.inicio) <= hm); }
 const pastCls = (it, now) => isPast(it, now) ? " past" : "";
 const isPlen = it => it.tipo === "evento" && /plenaria/i.test(it.titulo);
+// Lugares con mapa: si una actividad tiene en "notas" (o "sala") el nombre de un lugar de esta lista, se despliega con dirección y mapa.
+const LUGARES = {
+  "Bodega Los Toneles": { dir:"Acceso Este, Lateral Norte 1360, Guaymallén, Mendoza", lat:-32.896224, lng:-68.817334,
+    url:"https://maps.app.goo.gl/JvxG3DRg4T8D7i1J8", q:"Bodega Los Toneles, Acceso Este 1360, Guaymallén, Mendoza" }
+};
+const lugarDe = it => it && it.tipo === "evento" ? (LUGARES[String(it.notas||"").trim()] || LUGARES[String(it.sala||"").trim()] || null) : null;
+const rutaUrl = L => `https://www.google.com/maps/dir/?api=1&destination=${L.lat},${L.lng}`;
 const isTalk = it => it.tipo === "charla" || it.tipo === "poster";
 const key = it => it.dia + " " + it.inicio;
 function sesName(c){ return (LANG==="en" && SES_EN[c] ? SES_EN[c][0] : (D.sesiones[c] || c || "")); }
@@ -711,6 +752,20 @@ function cardHTML(it, opts={}){
 function eventHTML(it){
   const span = `${esc(it.inicio)}${it.fin?"–"+esc(it.fin):""}${it.sala?" · "+esc(salaTxt(it.sala)):""}`;
   const nota = it.notas ? `<div class="evnote">${esc(noteTxt(it.notas))}</div>` : "";
+  const L = lugarDe(it);
+  if(L){
+    const k = "ev:"+it.id, o = open.has(k), nombre = String(it.notas||it.sala).trim();
+    return `<div class="event click plen lugar${o?" open":""}${pastCls(it)}" data-open="${k}" role="button" aria-expanded="${o}"><b><span class="tt">${esc(evTxt(it.titulo))}<span class="chev">▾</span></span><div class="evnote">📍 ${esc(nombre)}</div></b><span>${span}</span></div>`
+      + (o ? `<div class="ev-info${pastCls(it)}"><dl>
+          <dt>${T("vLugar")}</dt><dd>${esc(nombre)}</dd>
+          <dt>${T("vDir")}</dt><dd>${esc(L.dir)}</dd>
+          <dt>${T("vLleg")}</dt><dd>${T("vLlegTxt")}</dd>
+          ${it.descripcion?`<dt>${T("plDesc")}</dt><dd>${esc(it.descripcion)}</dd>`:""}
+        </dl>
+        ${CSV_URL ? `<iframe class="mapa" src="https://maps.google.com/maps?q=${encodeURIComponent(L.q)}&z=15&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="${T("vMapa")}"></iframe>` : ""}
+        <div class="maprow"><a class="mbtn" href="${L.url}" target="_blank" rel="noopener">📍 Google Maps</a><a class="mbtn sec" href="${rutaUrl(L)}" target="_blank" rel="noopener">🧭 ${T("vRuta")}</a></div>
+      </div>` : "");
+  }
   if(!isPlen(it)) return `<div class="event${pastCls(it)}"><b>${esc(evTxt(it.titulo))}${nota}</b><span>${span}</span></div>`;
   const k = "ev:"+it.id, o = open.has(k);
   const pend = `<span class="pend">${T("tbc")}</span>`;
@@ -1057,13 +1112,47 @@ const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platfo
 const instalada = window.matchMedia && matchMedia("(display-mode: standalone)").matches || navigator.standalone;
 const instTxt = () => T(instalada ? "instDone" : esIOS ? "instIOS" : "instAnd");
 function abrirAyuda(){ $("#help").classList.add("open"); document.body.classList.add("noscroll"); layerOpen("help", cerrarAyuda); toggleCfg(false); }
-function cerrarAyuda(){ $("#help").classList.remove("open"); document.body.classList.remove("noscroll"); try{ localStorage.setItem(HELP_KEY,"1"); }catch(e){} layerDone("help"); }
+function cerrarAyuda(){ $("#help").classList.remove("open"); document.body.classList.remove("noscroll"); try{ localStorage.setItem(HELP_KEY,"1"); localStorage.setItem(NEWS_KEY, NEWS_VER); }catch(e){} layerDone("help"); }
 $("#cfgHelp").addEventListener("click", abrirAyuda);
 $("#helpOk").addEventListener("click", cerrarAyuda);
 $("#helpX").addEventListener("click", cerrarAyuda);
 $("#help").addEventListener("click", e => { if(e.target.id === "help") cerrarAyuda(); });
 document.addEventListener("keydown", e => { if(e.key === "Escape" && $("#help").classList.contains("open")) cerrarAyuda(); });
 // la primera vez, la ayuda se abre cuando termina la pantalla de carga
+// ---------- Novedades (se muestra una vez a quienes ya usaban la app) ----------
+const NEWS_KEY = "mecom2026.novedades", NEWS_VER = "2026-11-10";
+const CENA_ID = "E26";
+function abrirNews(){
+  const L = LUGARES["Bodega Los Toneles"]; $("#newsMaps").href = L.url;
+  $("#news").classList.add("open"); document.body.classList.add("noscroll"); layerOpen("news", cerrarNews); toggleCfg(false);
+}
+function cerrarNews(){
+  $("#news").classList.remove("open");
+  if(!document.querySelector(".help.open")) document.body.classList.remove("noscroll");
+  try{ localStorage.setItem(NEWS_KEY, NEWS_VER); }catch(e){}
+  layerDone("news");
+}
+function irACena(){
+  const it = D.items.find(x => x.id === CENA_ID) || D.items.find(x => lugarDe(x));
+  if(!it){ cerrarNews(); return; }
+  const k = "ev:"+it.id;
+  if(!open.has(k)){ open.add(k); layerOpen("open:"+k, () => closeOpenKey(k)); }
+  cerrarNews();
+  state.q = ""; state.ses = ""; $("#q").value = ""; $("#fSes").value = ""; layerDone("filtro");
+  state.day = it.dia;
+  if(state.tab !== "programa") setTab("programa"); else render();
+  setTimeout(() => { const el = document.querySelector(`[data-open="${k}"]`); if(el) el.scrollIntoView({block:"center", behavior:"smooth"}); }, 60);
+}
+$("#news").addEventListener("click", e => { e.stopPropagation(); if(e.target.id === "news") cerrarNews(); });
+$("#newsOk").addEventListener("click", cerrarNews);
+$("#newsX").addEventListener("click", cerrarNews);
+$("#newsShare").addEventListener("click", () => { abrirShare(); cerrarNews(); });
+$("#newsCena").addEventListener("click", irACena);
+$("#newsMaps").addEventListener("click", () => cerrarNews());
+document.addEventListener("keydown", e => { if(e.key === "Escape" && $("#news").classList.contains("open")) cerrarNews(); });
+let novedadesPendientes = false;
+(function(){ let v = null; try{ v = localStorage.getItem(NEWS_KEY); }catch(e){} if(v !== NEWS_VER) novedadesPendientes = true; })();
+
 let ayudaPendiente = false;
 (function(){ let visto = null; try{ visto = localStorage.getItem(HELP_KEY); }catch(e){} if(!visto) ayudaPendiente = true; })();
 // Volver a la pestaña o a la app instalada: buscar cambios (si pasó más de 1 minuto desde el último intento).
@@ -1121,7 +1210,10 @@ const minSplash = reduce ? 600 : 2800;
 Promise.race([tryLive(), new Promise(r => setTimeout(r, 4000))]).then(() => {
   setTimeout(() => {
     $("#splash").classList.add("hide");
-    setTimeout(() => { if(ayudaPendiente){ ayudaPendiente = false; abrirAyuda(); } }, 550);
+    setTimeout(() => {
+      if(ayudaPendiente){ ayudaPendiente = false; novedadesPendientes = false; abrirAyuda(); }      // primera visita: solo la ayuda
+      else if(novedadesPendientes){ novedadesPendientes = false; abrirNews(); }                     // ya la usaba: novedades
+    }, 550);
   }, Math.max(0, minSplash - (performance.now() - t0)));
 });
 // Funciona sin conexión cuando la app está publicada en un sitio propio (no aplica dentro de Claude).
