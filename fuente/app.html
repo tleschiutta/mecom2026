@@ -157,9 +157,12 @@ main{max-width:760px;margin:0 auto;padding:12px 12px 90px}
 .star{grid-row:1/4;grid-column:2;align-self:start;background:none;border:0;font-size:24px;line-height:1;cursor:pointer;color:var(--line);padding:2px}
 .card.fav .star{color:var(--star)}
 .event{border-radius:var(--r);padding:10px 12px;margin:6px 0;background:var(--base-soft);display:flex;justify-content:space-between;gap:10px;font-size:14px}
-.event b{color:var(--base-2)}
+.event b{color:var(--base-2);min-width:0;flex:1 1 auto;overflow-wrap:anywhere}
 :root[data-theme="dark"] .event b{color:#a9c3ea}
 .event span{color:var(--muted);font-size:13px;white-space:nowrap}
+.event > span{flex:none}
+.event .tt{white-space:normal}
+.event .evnote{white-space:normal}
 /* Bloques de sesión */
 .grp{margin:22px 0 24px}
 .blk{display:flex;align-items:center;gap:10px;border-radius:14px;padding:12px 14px;margin:7px 0;color:#151515;cursor:pointer;user-select:none;
@@ -179,7 +182,7 @@ main{max-width:760px;margin:0 auto;padding:12px 12px 90px}
 .event .chev{font-size:12px;opacity:.7;transition:transform .2s}
 .event.open .chev{transform:rotate(180deg)}
 .event .evr{display:flex;align-items:center;gap:8px}
-.ev-info{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin:-2px 0 10px;font-size:14px}
+.ev-info{min-width:0;max-width:100%;box-sizing:border-box;overflow:hidden;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin:-2px 0 10px;font-size:14px}
 .ev-info dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:0}
 .ev-info dt{color:var(--muted)}
 .ev-info dd{margin:0}
@@ -187,7 +190,7 @@ main{max-width:760px;margin:0 auto;padding:12px 12px 90px}
 /* Lugar con mapa (cena) */
 .event.lugar{background:#f7f1f5;border:1px solid #ead9e4}
 :root[data-theme="dark"] .event.lugar{background:#3a2836;border-color:#53384c}
-.ev-info .mapa{display:block;width:100%;height:220px;border:0;border-radius:10px;margin-top:12px;background:var(--base-soft)}
+.ev-info .mapa{display:block;width:100%;max-width:100%;box-sizing:border-box;height:220px;border:0;border-radius:10px;margin-top:12px;background:var(--base-soft)}
 .maprow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .mbtn{flex:1 1 140px;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;border-radius:10px;background:var(--base);color:#fff;text-decoration:none;font-weight:600;font-size:14px}
 .mbtn.sec{background:var(--base-soft);color:var(--base-2)}
@@ -1120,7 +1123,7 @@ $("#help").addEventListener("click", e => { if(e.target.id === "help") cerrarAyu
 document.addEventListener("keydown", e => { if(e.key === "Escape" && $("#help").classList.contains("open")) cerrarAyuda(); });
 // la primera vez, la ayuda se abre cuando termina la pantalla de carga
 // ---------- Novedades (se muestra una vez a quienes ya usaban la app) ----------
-const NEWS_KEY = "mecom2026.novedades", NEWS_VER = "2026-11-10";
+const NEWS_KEY = "mecom2026.novedades", NEWS_VER = "2026-11-11";
 const CENA_ID = "E26";
 function abrirNews(){
   const L = LUGARES["Bodega Los Toneles"]; $("#newsMaps").href = L.url;
