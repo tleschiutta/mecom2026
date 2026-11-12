@@ -100,6 +100,7 @@ body.noscroll{overflow:hidden}
 .lang button{border:0;background:none;color:#c9cbd0;font:inherit;font-size:13.5px;font-weight:600;padding:6px 11px;border-radius:8px;cursor:pointer}
 .lang button.on{background:#fff;color:#1d1f23}
 .cfg .row.lg{cursor:default}
+.cfg .row[hidden]{display:none}
 .cfg .row.an{flex-direction:column;align-items:stretch;gap:9px;cursor:default}
 .cfg .row.an .anl{display:flex;justify-content:space-between;align-items:center;gap:12px}
 .anims{display:flex;background:#ffffff14;border-radius:10px;padding:3px;gap:2px}
@@ -210,6 +211,17 @@ main{max-width:760px;margin:0 auto;padding:12px 12px 90px}
 .nbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
 .nbtn{background:#ffffff1c;color:#fff;border:0;border-radius:10px;padding:8px 12px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;text-decoration:none}
 .nbtn.pri{background:var(--base)}
+/* Aviso del día de la cena (ventana angosta en el medio de la pantalla) */
+.aviso{position:fixed;inset:0;z-index:75;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(8,10,20,.30)}
+.aviso.open{display:flex;animation:avIn .3s ease}
+@keyframes avIn{from{opacity:0}to{opacity:1}}
+.aviso .caja{position:relative;width:min(440px,100%);height:132px;border-radius:18px;background:var(--card);border:1px solid var(--line);
+  box-shadow:0 18px 50px rgba(0,0,0,.35);overflow:hidden;cursor:pointer;animation:avPop .5s cubic-bezier(.2,1.35,.45,1)}
+@keyframes avPop{from{transform:scale(.8);opacity:0}to{transform:none;opacity:1}}
+.aviso canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.aviso .franja{position:absolute;left:0;top:0;bottom:0;width:6px;background:#7a1a52;z-index:1}
+.aviso .x{position:absolute;top:4px;right:6px;z-index:2;width:34px;height:34px;border:0;background:none;color:var(--muted);font-size:24px;line-height:1;cursor:pointer}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 /* Actividades que ya pasaron */
 .past{opacity:.42}
 .blk.past{opacity:.35;filter:saturate(.55)}
@@ -572,6 +584,8 @@ window.iniciarSplash();
     <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.6-3 4.5"/><path d="M12 17.5h.01"/></svg></button>
   <button class="row" id="cfgShare"><span data-i18n="share">Compartir la app</span>
     <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button>
+  <button class="row" id="cfgAviso" hidden><span data-i18n="avVer">Ver aviso de la cena</span>
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5h11"/><path d="M8.5 9.5l.6-4.2c.1-.7 1.2-1 1.7-.4l1.2 1.3 1.2-1.3c.5-.6 1.6-.3 1.7.4l.6 4.2"/><path d="M4 9.5c2.5 1.6 13.5 1.6 16 0"/><path d="M9 15.5l6 3-6 3z" fill="currentColor" stroke="none"/></svg></button>
   <div class="row an" id="cfgAnim"><span class="anl"><span data-i18n="anim">Animación de carga</span>
     <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2.5h10l-.4 6.2a4.6 4.6 0 0 1-9.2 0z"/><path d="M7.3 6.8h9.4" opacity=".55"/><path d="M12 13.3V21"/><path d="M8 21h8"/></svg></span>
     <span class="anims" role="radiogroup"><button data-anim="1" role="radio" data-i18n="an1">Animación 1</button><button data-anim="2" role="radio" data-i18n="an2">Animación 2</button></span></div>
@@ -626,6 +640,11 @@ window.iniciarSplash();
     <div class="ft"><button id="newsOk" data-i18n="nwOk">Entendido</button></div>
   </div>
 </div>
+<div class="aviso" id="aviso" role="dialog" aria-modal="true" aria-labelledby="avisoT">
+  <div class="caja" id="avisoCaja"><span class="franja"></span><canvas id="avisoCv" aria-hidden="true"></canvas>
+    <span class="vh" id="avisoT"></span>
+    <button class="x" id="avisoX" data-i18n-aria="close" aria-label="Cerrar">×</button></div>
+</div>
 <div class="notice" id="notice" role="status"><span id="noticeTxt"></span><button id="noticeX" data-i18n-aria="close" aria-label="Cerrar">×</button></div>
 
 <script>
@@ -656,9 +675,10 @@ const I18N = {
   allSes:"Todas las sesiones", sim:"Simular un momento del congreso:", ics:"Exportar a calendario (.ics)", copy:"Copiar lista", clear:"Vaciar", clearSure:"¿Seguro? Tocá de nuevo",
   credit:'Creado por <b>Tomás Leschiutta</b> como un aporte voluntario para el MECOM 2026.<br>Es un proyecto sin fines de lucro, hecho solo para ayudar al congreso y a quienes participan.<br><i>Esta no es la app oficial de AMCA: ante cualquier diferencia, vale el programa oficial.</i>',
   dataSrc:"Datos: programa oficial publicado por AMCA", pdf:"Ver programa oficial (PDF)",
-  lang:"Idioma", dark:"Modo oscuro", upd:"Actualizar", howto:"Cómo usar la app", share:"Compartir la app", anim:"Animación de carga", an1:"Animación 1", an2:"Animación 2", shareT:"Compartí la app", shareSub:"Mostrá este QR o mandá el link por WhatsApp.", shareWa:"Compartir por WhatsApp", shareCopy:"Copiar link", shareMore:"Más opciones…",
+  lang:"Idioma", dark:"Modo oscuro", upd:"Actualizar", howto:"Cómo usar la app", share:"Compartir la app", avVer:"Ver aviso de la cena", anim:"Animación de carga", an1:"Animación 1", an2:"Animación 2", shareT:"Compartí la app", shareSub:"Mostrá este QR o mandá el link por WhatsApp.", shareWa:"Compartir por WhatsApp", shareCopy:"Copiar link", shareMore:"Más opciones…",
   shareMsg:"Programa interactivo del MECOM 2026 (Mendoza, 10 al 13 de noviembre): sesiones, búsqueda, tu agenda y lo que está pasando ahora. 👉 ", tRefresh:"Programa actualizado",
   vLugar:"Lugar", vDir:"Dirección", vLleg:"Distancia", vLlegTxt:"A unos 10 minutos en auto del centro de Mendoza.", vMaps:"Abrir en Google Maps", vRuta:"Cómo llegar", vMapa:"Mapa de la ubicación",
+  avT:"¡Hoy! Cena de camaradería", avSub:(h, l) => `${h} · ${l} · Tocá para ver el mapa`,
   nwT:"¡La app se actualizó!", nwSub:"Esto es lo nuevo:", nwShare:"Compartir ahora", nwVer:"Ver en el programa", nwOk:"Entendido",
   nw1:'<b>Compartí la app con tus colegas</b>Entrá a <span class="k">⚙ Configuración</span> › <span class="k">Compartir la app</span>: ahí tenés un QR para mostrar y un botón para mandar el link por WhatsApp.',
   nw2:'<b>Cena de camaradería · jueves 12, 21:00</b>Es en <b style="display:inline">Bodega Los Toneles</b>, Acceso Este, Lateral Norte 1360, Guaymallén (a unos 10 minutos en auto del centro). En el programa del jueves, tocá la cena para ver el mapa.',
@@ -700,9 +720,10 @@ const I18N = {
   allSes:"All sessions", sim:"Simulate a moment during the congress:", ics:"Export to calendar (.ics)", copy:"Copy list", clear:"Clear", clearSure:"Sure? Tap again",
   credit:'Created by <b>Tomás Leschiutta</b> as a volunteer contribution to MECOM 2026.<br>This is a non-profit project, made only to help the congress and its participants.<br><i>This is not the official AMCA app: if anything differs, the official program prevails.</i>',
   dataSrc:"Data: official program published by AMCA", pdf:"See the official program (PDF)",
-  lang:"Language", dark:"Dark mode", upd:"Refresh", howto:"How to use the app", share:"Share the app", anim:"Loading animation", an1:"Animation 1", an2:"Animation 2", shareT:"Share the app", shareSub:"Show this QR code or send the link on WhatsApp.", shareWa:"Share on WhatsApp", shareCopy:"Copy link", shareMore:"More options…",
+  lang:"Language", dark:"Dark mode", upd:"Refresh", howto:"How to use the app", share:"Share the app", avVer:"Show the dinner notice", anim:"Loading animation", an1:"Animation 1", an2:"Animation 2", shareT:"Share the app", shareSub:"Show this QR code or send the link on WhatsApp.", shareWa:"Share on WhatsApp", shareCopy:"Copy link", shareMore:"More options…",
   shareMsg:"Interactive program of MECOM 2026 (Mendoza, November 10–13): sessions, search, your agenda and what is on right now. 👉 ", tRefresh:"Program refreshed",
   vLugar:"Venue", vDir:"Address", vLleg:"Distance", vLlegTxt:"About a 10-minute drive from downtown Mendoza.", vMaps:"Open in Google Maps", vRuta:"Directions", vMapa:"Location map",
+  avT:"Tonight! Conference dinner", avSub:(h, l) => `${h} · ${l} · Tap to see the map`,
   nwT:"The app has been updated!", nwSub:"Here's what's new:", nwShare:"Share now", nwVer:"See it in the program", nwOk:"Got it",
   nw1:'<b>Share the app with your colleagues</b>Go to <span class="k">⚙ Settings</span> › <span class="k">Share the app</span>: there is a QR code to show and a button to send the link via WhatsApp.',
   nw2:'<b>Conference dinner · Thursday 12, 21:00</b>It takes place at <b style="display:inline">Bodega Los Toneles</b>, Acceso Este, Lateral Norte 1360, Guaymallén (about a 10-minute drive from downtown). In Thursday\'s program, tap the dinner to see the map.',
@@ -880,6 +901,7 @@ function updFooter(){
 }
 function renderCfg(){
   const dark = document.documentElement.dataset.theme === "dark";
+  if(typeof avisoCenaHoy === "function") $("#cfgAviso").hidden = !avisoCenaHoy();   // el botón solo aparece el día de la cena
   $("#cfgTheme").setAttribute("aria-checked", dark);
   $("#updIco").classList.toggle("spin", sync.cargando);
   let h;
@@ -1293,7 +1315,7 @@ const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platfo
 const instalada = window.matchMedia && matchMedia("(display-mode: standalone)").matches || navigator.standalone;
 const instTxt = () => T(instalada ? "instDone" : esIOS ? "instIOS" : "instAnd");
 function abrirAyuda(){ $("#help").classList.add("open"); document.body.classList.add("noscroll"); layerOpen("help", cerrarAyuda); toggleCfg(false); }
-function cerrarAyuda(){ $("#help").classList.remove("open"); document.body.classList.remove("noscroll"); try{ localStorage.setItem(HELP_KEY,"1"); localStorage.setItem(NEWS_KEY, NEWS_VER); }catch(e){} layerDone("help"); }
+function cerrarAyuda(){ $("#help").classList.remove("open"); document.body.classList.remove("noscroll"); try{ localStorage.setItem(HELP_KEY,"1"); localStorage.setItem(NEWS_KEY, NEWS_VER); }catch(e){} layerDone("help"); setTimeout(abrirAviso, 450); }
 $("#cfgHelp").addEventListener("click", abrirAyuda);
 $("#helpOk").addEventListener("click", cerrarAyuda);
 $("#helpX").addEventListener("click", cerrarAyuda);
@@ -1312,13 +1334,16 @@ function cerrarNews(){
   if(!document.querySelector(".help.open")) document.body.classList.remove("noscroll");
   try{ localStorage.setItem(NEWS_KEY, NEWS_VER); }catch(e){}
   layerDone("news");
+  setTimeout(abrirAviso, 450);
 }
 function irACena(){
   const it = D.items.find(x => x.id === CENA_ID) || D.items.find(x => lugarDe(x));
-  if(!it){ cerrarNews(); return; }
+  if(!it){ if($("#news").classList.contains("open")) cerrarNews(); return; }
   const k = "ev:"+it.id;
+  avisoMostrado = true;                                    // ya se está mostrando la cena: no hace falta el aviso
   if(!open.has(k)){ open.add(k); layerOpen("open:"+k, () => closeOpenKey(k)); }
-  cerrarNews();
+  if($("#news").classList.contains("open")) cerrarNews();
+  if($("#aviso").classList.contains("open")) cerrarAviso();
   state.q = ""; state.ses = ""; $("#q").value = ""; $("#fSes").value = ""; layerDone("filtro");
   state.day = it.dia;
   if(state.tab !== "programa") setTab("programa"); else render();
@@ -1331,6 +1356,212 @@ $("#newsShare").addEventListener("click", () => { abrirShare(); cerrarNews(); })
 $("#newsCena").addEventListener("click", irACena);
 $("#newsMaps").addEventListener("click", () => cerrarNews());
 document.addEventListener("keydown", e => { if(e.key === "Escape" && $("#news").classList.contains("open")) cerrarNews(); });
+// ---------- Aviso del día de la cena ----------
+// Ventana angosta en el medio de la pantalla: un muñeco hecho de nodos y barras (como una malla de elementos finitos)
+// cruza de izquierda a derecha haciendo el "moonwalk" (mira hacia la izquierda y se desliza hacia la derecha),
+// y detrás de él va apareciendo "¡Hoy! Cena de camaradería". Sale sola el día de la cena, una vez por cada apertura de la app.
+let avisoMostrado = false, avisoRAF = 0, avisoTimer = 0;
+const AVISO_FIGURA = (location.hash.match(/fig=(malla|tango)/) || [])[1] || "tango";   // "tango" (vestimenta de tango) o "malla" (mapa de tensiones)
+const cenaItem = () => D.items.find(x => x.id === CENA_ID) || D.items.find(x => lugarDe(x));
+function avisoCenaHoy(){ const it = cenaItem(); if(!it) return false; const {dia, hm} = nowParts(); return it.dia === dia && hm < (it.fin || "23:59"); }
+function abrirAviso(forzar){
+  if(!avisoCenaHoy() || document.querySelector(".help.open") || $("#aviso").classList.contains("open")) return;
+  if(avisoMostrado && !forzar) return;
+  avisoMostrado = true;
+  $("#avisoT").textContent = T("avT");
+  $("#aviso").classList.add("open"); layerOpen("aviso", cerrarAviso); toggleCfg(false);
+  requestAnimationFrame(() => animarAviso(cenaItem()));
+  clearTimeout(avisoTimer); avisoTimer = setTimeout(cerrarAviso, 12000);
+}
+function cerrarAviso(){
+  if(!$("#aviso").classList.contains("open")) return;
+  $("#aviso").classList.remove("open"); cancelAnimationFrame(avisoRAF); clearTimeout(avisoTimer); layerDone("aviso");
+}
+$("#avisoX").addEventListener("click", e => { e.stopPropagation(); cerrarAviso(); });
+$("#cfgAviso").addEventListener("click", e => { e.stopPropagation(); abrirAviso(true); });
+$("#avisoCaja").addEventListener("click", e => { e.stopPropagation(); irACena(); });
+$("#aviso").addEventListener("click", e => { if(e.target.id === "aviso") cerrarAviso(); });
+document.addEventListener("keydown", e => { if(e.key === "Escape" && $("#aviso").classList.contains("open")) cerrarAviso(); });
+function animarAviso(it){
+  const cv = $("#avisoCv"), W = cv.clientWidth, H = cv.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  const c = cv.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const oscuro = document.documentElement.dataset.theme === "dark";
+  const COL = { barra: oscuro ? "#8db0e6" : "#134082", nodo: oscuro ? "#d1569c" : "#7a1a52", texto: oscuro ? "#e48bbf" : "#7a1a52",
+                sub: oscuro ? "#a39b95" : "#6b6560", piso: oscuro ? "#ffffff1f" : "#0000001a", sombra: oscuro ? "#00000066" : "#00000022" };
+  const L = lugarDe(it) ? String(it.notas || it.sala).trim() : "";
+  const titulo = T("avT"), sub = T("avSub", it.inicio, L);
+  const FL = H - 16;                                     // línea del piso
+  const DUR = 4.8, X0 = -34, X1 = W + 40, v = (X1 - X0) / DUR;
+  const P = .78, A = v * P / 4;                          // período del paso; amplitud que deja el pie de apoyo quieto en el piso
+  const T1 = 24, T2 = 24, PIE = 11;                      // muslo, pierna y pie (px)
+  // tamaño del título para que entre en la caja
+  c.font = "800 10px 'Open Sans','IBM Plex Sans',sans-serif";
+  const fs = Math.min(30, Math.max(17, (W - 56) / (c.measureText(titulo).width / 10)));
+  const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const sstep = (a, b, x) => { x = Math.max(0, Math.min(1, (x - a) / (b - a))); return x * x * (3 - 2 * x); };
+  function rodilla(hx, hy, ax, ay){                      // cinemática inversa de dos barras; la rodilla se dobla hacia adelante (izquierda)
+    let dx = ax - hx, dy = ay - hy, d = Math.hypot(dx, dy); d = Math.min(d, T1 + T2 - .01);
+    const base = Math.atan2(dy, dx), off = Math.acos((T1*T1 + d*d - T2*T2) / (2 * T1 * d));
+    const k1 = [hx + T1 * Math.cos(base + off), hy + T1 * Math.sin(base + off)], k2 = [hx + T1 * Math.cos(base - off), hy + T1 * Math.sin(base - off)];
+    return k1[0] < k2[0] ? k1 : k2;
+  }
+  function pie(t, x, fase){
+    // fase 0–0.5: pie plano que se desliza hacia atrás (derecha); 0.5–1: pie de apoyo con el talón levantado, quieto en el piso
+    const f = ((t / P + fase) % 1 + 1) % 1;
+    const rel = f < .5 ? -A + 4 * A * f : A - 4 * A * (f - .5);
+    const talon = sstep(.46, .56, f) * (1 - sstep(.96, 1, f));   // 0 = plano, 1 = talón arriba (es el que carga el peso)
+    const bx = x + rel;                                         // punta del pie
+    return { punta:[bx - 2, FL], tobillo:[bx + PIE - 3 * talon, FL - 3 - 6 * talon], carga: talon };
+  }
+  // Mapa de tensiones: escala "arcoíris" de azul (baja) a rojo (alta), como en un postprocesador de elementos finitos
+  const jet = s => { s = Math.max(0, Math.min(1, s)); const k = o => Math.round(255 * Math.max(0, Math.min(1, 1.5 - Math.abs(4 * s - o)))); return `rgb(${k(3)},${k(2)},${k(1)})`; };
+  const ARISTA = oscuro ? "rgba(0,0,0,.6)" : "rgba(20,24,48,.5)";
+  function tri(p, q, r, sv){ c.fillStyle = jet(sv); c.beginPath(); c.moveTo(p[0], p[1]); c.lineTo(q[0], q[1]); c.lineTo(r[0], r[1]); c.closePath(); c.fill(); c.stroke(); }
+  // Franja de elementos a lo largo de una barra: n tramos, cada uno partido en dos triángulos
+  function franja(p0, p1, w0, w1, n, s0, s1, t){
+    const dx = p1[0] - p0[0], dy = p1[1] - p0[1], Lg = Math.hypot(dx, dy) || 1, nx = -dy / Lg, ny = dx / Lg;
+    const Q = (u, lado) => { const w = (w0 + (w1 - w0) * u) / 2 * lado; return [p0[0] + dx * u + nx * w, p0[1] + dy * u + ny * w]; };
+    for(let i = 0; i < n; i++){
+      const u0 = i / n, u1 = (i + 1) / n, sA = s0 + (s1 - s0) * (u0 + .25 / n), sB = s0 + (s1 - s0) * (u0 + .75 / n), r = .05 * Math.sin(t * 9 + i * 2);
+      const a = Q(u0, 1), b = Q(u0, -1), d = Q(u1, 1), e = Q(u1, -1);
+      tri(a, b, d, sA + r); tri(b, e, d, sB - r);
+    }
+  }
+  const lerp = (a, b, k) => a + (b - a) * k;
+  function sombrero(h){
+    // Sombrero de tango (funyi): ala angosta, copa con el hundido arriba y cinta bordó; inclinado hacia adelante
+    c.save(); c.translate(h[0], h[1]); c.rotate(-.14);
+    const negro = oscuro ? "#2b2727" : "#1d1b1a", borde = oscuro ? "#a39b95" : null;   // siempre negro; en modo oscuro con un borde fino
+    c.fillStyle = negro;
+    c.beginPath(); c.moveTo(-7.4, -4.6); c.lineTo(-6.6, -12.4); c.quadraticCurveTo(-3, -10.6, 0, -12.2); c.quadraticCurveTo(3.4, -13.8, 6.6, -12.6); c.lineTo(7.4, -4.6); c.closePath(); c.fill();
+    if(borde){ c.strokeStyle = borde; c.lineWidth = .8; c.stroke(); }
+    c.fillStyle = "#7a1a52"; c.fillRect(-7.3, -7.4, 14.6, 2.6);
+    c.strokeStyle = negro; c.lineWidth = 2.4; c.lineCap = "round";
+    if(borde){ c.strokeStyle = borde; c.lineWidth = 3.8; c.beginPath(); c.moveTo(-12, -4.2); c.quadraticCurveTo(0, -5.8, 11, -4.6); c.stroke(); c.strokeStyle = negro; c.lineWidth = 2.4; }
+    c.beginPath(); c.moveTo(-12, -4.2); c.quadraticCurveTo(0, -5.8, 11, -4.6); c.stroke();
+    c.restore();
+  }
+  // Bailarín con vestimenta de tango (unisex), con los colores de la app: sombrero negro con cinta bordó,
+  // camisa blanca arremangada, chaleco bordó, pañuelo blanco, pantalón azul de tiro alto con raya y zapatos bicolores.
+  function munecoTango(t, x){
+    const f = (t / P) % 1, hy = FL - 46 + Math.cos(f * 4 * Math.PI) * 1.1;
+    const lean = -.05, hip = [x, hy], sh = [x + Math.sin(lean) * 29, hy - Math.cos(lean) * 29];
+    const head = [sh[0] - 1.5, sh[1] - 12];
+    const pA = pie(t, x, 0), pB = pie(t, x, .5);
+    const kA = rodilla(hip[0], hip[1], pA.tobillo[0], pA.tobillo[1]), kB = rodilla(hip[0], hip[1], pB.tobillo[0], pB.tobillo[1]);
+    const sw = Math.sin(f * 2 * Math.PI);
+    const brazo = (s) => { const a1 = .1 + .45 * s, e = [sh[0] + Math.sin(a1) * 15, sh[1] + Math.cos(a1) * 15];
+      const a2 = a1 - .55 - .25 * s; return [e, [e[0] + Math.sin(a2) * 14, e[1] + Math.cos(a2) * 14]]; };
+    const [eA, mA] = brazo(sw), [eB, mB] = brazo(-sw);
+    const NEGRO = oscuro ? "#2b2727" : "#1d1b1a", BORDE = oscuro ? "#a39b95" : null, BLANCO = "#f7f4ef", PIEL = "#d9a37a", BORDO = "#8e2061",
+          AZUL = oscuro ? "#2f5fae" : "#134082", CHALECO = oscuro ? "#a3286f" : "#7a1a52";
+    c.fillStyle = COL.sombra; c.beginPath(); c.ellipse(x + 2, FL + 1.5, 20, 3.2, 0, 0, 6.2832); c.fill();
+    c.lineCap = "round"; c.lineJoin = "round";
+    const trazo = (pts, w, col) => {
+      const go = () => { c.beginPath(); c.moveTo(pts[0][0], pts[0][1]); for(let i = 1; i < pts.length; i++) c.lineTo(pts[i][0], pts[i][1]); c.stroke(); };
+      if(BORDE && col === NEGRO){ c.strokeStyle = BORDE; c.lineWidth = w + 1.6; go(); }
+      c.strokeStyle = col; c.lineWidth = w; go();
+    };
+    // zapato bicolor: capellada blanca con puntera y talón negros
+    const zapato = (p) => {
+      const a = p.tobillo, b = p.punta, dx = b[0] - a[0], dy = b[1] - a[1];
+      trazo([[a[0] + 1.5, a[1] + 1.5], [b[0], b[1] - .5]], 4.6, NEGRO);
+      trazo([[a[0] + dx * .3, a[1] + dy * .3 + .6], [a[0] + dx * .68, a[1] + dy * .68 + .2]], 3, BLANCO);
+    };
+    const pierna = (p, k) => { trazo([hip, k, p.tobillo], 7.4, AZUL);
+      c.strokeStyle = "rgba(255,255,255,.35)"; c.lineWidth = .7; c.beginPath(); c.moveTo(hip[0], hip[1]); c.lineTo(k[0], k[1]); c.lineTo(p.tobillo[0], p.tobillo[1] - 1); c.stroke();   // raya del pantalón
+      zapato(p); };
+    const brazoT = (e, m) => { trazo([sh, e, [e[0] + (m[0] - e[0]) * .35, e[1] + (m[1] - e[1]) * .35]], 5.4, BLANCO);  // manga arremangada
+      trazo([[e[0] + (m[0] - e[0]) * .3, e[1] + (m[1] - e[1]) * .3], m], 3.6, PIEL); c.fillStyle = PIEL; c.beginPath(); c.arc(m[0], m[1], 2.3, 0, 6.2832); c.fill(); };
+    // miembros de atrás (un poco más tenues)
+    c.globalAlpha = .78; pierna(pB, kB); brazoT(eB, mB); c.globalAlpha = 1;
+    // camisa (torso) y chaleco
+    const tw = 6.6, Sf = [sh[0] - tw, sh[1] + 1], Sb = [sh[0] + tw, sh[1] + 1], Wb = [hip[0] + tw * .8, hip[1] - 3], Wf = [hip[0] - tw * .8, hip[1] - 3];
+    const poli = (pts, col) => { c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1])); c.closePath(); c.fillStyle = col; c.fill(); };
+    poli([Sf, Sb, Wb, Wf], BLANCO);
+    // chaleco: deja ver una "V" de camisa en el pecho (al frente, a la izquierda)
+    const V = [sh[0] - 1.5, sh[1] + 11];
+    poli([[Sf[0] + 3.2, Sf[1]], Sb, [Wb[0], Wb[1] + 1], [Wf[0], Wf[1] + 1], [Sf[0], Sf[1] + 5], V], CHALECO);
+    // botones del chaleco
+    c.fillStyle = "#c9b68a"; [.45, .65, .85].forEach(k => { c.beginPath(); c.arc(lerp(V[0], Wf[0] + 2, k), lerp(V[1], Wf[1], k), .9, 0, 6.2832); c.fill(); });
+    // pantalón de tiro alto: cintura negra sobre la cadera
+    c.lineCap = "butt"; trazo([[Wf[0] - .3, hip[1] - 1.5], [Wb[0] + .3, hip[1] - 1.5]], 5, AZUL); c.lineCap = "round";
+    // cuello, pañuelo y cabeza
+    trazo([sh, [head[0], head[1] + 6]], 4, PIEL);
+    c.fillStyle = BLANCO; c.beginPath(); c.moveTo(sh[0] - 5, sh[1] - .5); c.lineTo(sh[0] + 4, sh[1] - .5); c.lineTo(sh[0] - 2.5, sh[1] + 7); c.closePath(); c.fill();
+    c.strokeStyle = "rgba(0,0,0,.18)"; c.lineWidth = .6; c.stroke();
+    c.fillStyle = PIEL; c.beginPath(); c.arc(head[0], head[1], 7.2, 0, 6.2832); c.fill();
+    c.fillStyle = "#3a2a22"; c.beginPath(); c.arc(head[0] - 3.4, head[1] - .4, 1.1, 0, 6.2832); c.fill();
+    sombrero(head);
+    // miembros de adelante
+    pierna(pA, kA); brazoT(eA, mA);
+  }
+  function muneco(t, x){
+    if(AVISO_FIGURA === "tango") return munecoTango(t, x);
+    const f = (t / P) % 1, hy = FL - 46 + Math.cos(f * 4 * Math.PI) * 1.1;
+    const lean = -.05, hip = [x, hy], sh = [x + Math.sin(lean) * 29, hy - Math.cos(lean) * 29];
+    const head = [sh[0] - 1.5, sh[1] - 12];
+    const pA = pie(t, x, 0), pB = pie(t, x, .5);
+    const kA = rodilla(hip[0], hip[1], pA.tobillo[0], pA.tobillo[1]), kB = rodilla(hip[0], hip[1], pB.tobillo[0], pB.tobillo[1]);
+    const sw = Math.sin(f * 2 * Math.PI);
+    const brazo = (s) => { const a1 = .1 + .45 * s, e = [sh[0] + Math.sin(a1) * 15, sh[1] + Math.cos(a1) * 15];
+      const a2 = a1 - .55 - .25 * s; return [e, [e[0] + Math.sin(a2) * 14, e[1] + Math.cos(a2) * 14]]; };
+    const [eA, mA] = brazo(sw), [eB, mB] = brazo(-sw);
+    // sombra
+    c.fillStyle = COL.sombra; c.beginPath(); c.ellipse(x + 2, FL + 1.5, 20, 3.2, 0, 0, 6.2832); c.fill();
+    c.strokeStyle = ARISTA; c.lineWidth = .7; c.lineJoin = "round";
+    // la pierna que carga el peso (talón arriba) se "calienta"; la que se desliza queda fría
+    const pierna = (p, k) => { const L = p.carga; franja(hip, k, 7, 5.6, 2, lerp(.3, .62, L), lerp(.38, .95, L), t); franja(k, p.tobillo, 5.6, 4.4, 2, lerp(.36, .9, L), lerp(.25, .7, L), t);
+      franja(p.tobillo, p.punta, 4, 3, 1, lerp(.2, .55, L), lerp(.15, .45, L), t); };
+    const brazoMalla = (e, m, s) => { franja(sh, e, 4.6, 3.8, 1, .3 + .1 * s, .22, t); franja(e, m, 3.8, 3, 1, .2, .12, t); };
+    // miembros de atrás, más tenues
+    c.globalAlpha = .6; pierna(pB, kB); brazoMalla(eB, mB, -sw); c.globalAlpha = 1;
+    // torso: malla de 2 × 3 elementos cuadriláteros partidos en triángulos
+    const tw = 6.2, Sf = [sh[0] - tw, sh[1]], Sb = [sh[0] + tw, sh[1]], Hb = [hip[0] + tw * .8, hip[1]], Hf = [hip[0] - tw * .8, hip[1]];
+    const Tq = (u, w) => [lerp(lerp(Sf[0], Sb[0], u), lerp(Hf[0], Hb[0], u), w), lerp(lerp(Sf[1], Sb[1], u), lerp(Hf[1], Hb[1], u), w)];
+    const carga = Math.max(pA.carga, pB.carga), ladoA = pA.carga - pB.carga;
+    const sT = (u, w) => .18 + .5 * w * (.6 + .4 * carga) + .14 * ladoA * (u - .5) * 2 * w + .06 * Math.sin(t * 7 + u * 4 + w * 3);
+    for(let j = 0; j < 3; j++) for(let i = 0; i < 2; i++){
+      const u0 = i / 2, u1 = (i + 1) / 2, w0 = j / 3, w1 = (j + 1) / 3;
+      const a = Tq(u0, w0), b = Tq(u1, w0), d = Tq(u1, w1), e = Tq(u0, w1);
+      tri(a, b, d, sT((u0 + u1 + u1) / 3, (w0 + w0 + w1) / 3)); tri(a, d, e, sT((u0 + u1 + u0) / 3, (w0 + w1 + w1) / 3));
+    }
+    // cuello y cabeza (abanico de 8 triángulos)
+    franja(sh, [head[0], head[1] + 6.5], 3.6, 3, 1, .3, .2, t);
+    const R = 7.4;
+    for(let i = 0; i < 8; i++){ const a0 = i / 8 * 6.2832, a1 = (i + 1) / 8 * 6.2832;
+      tri(head, [head[0] + R * Math.cos(a0), head[1] + R * Math.sin(a0)], [head[0] + R * Math.cos(a1), head[1] + R * Math.sin(a1)], .1 + .08 * Math.sin(a0 + t * 3) + (Math.sin((a0 + a1) / 2) > 0 ? .08 : 0)); }
+    c.fillStyle = "#fff"; c.beginPath(); c.arc(head[0] - 3.4, head[1] - .6, 1.2, 0, 6.2832); c.fill();
+    sombrero(head);
+    // miembros de adelante
+    pierna(pA, kA); brazoMalla(eA, mA, sw);
+    // nodos de las articulaciones
+    c.fillStyle = oscuro ? "#f2eee9" : "#1d1b1a";
+    [hip, sh, kA, kB, pA.tobillo, pB.tobillo, eA, eB].forEach(p => { c.beginPath(); c.arc(p[0], p[1], 1.6, 0, 6.2832); c.fill(); });
+  }
+  const t0 = performance.now();
+  function frame(now){
+    const t = reduce ? 99 : (now - t0) / 1000, x = X0 + v * Math.min(t, DUR);
+    c.clearRect(0, 0, W, H);
+    // piso
+    c.strokeStyle = COL.piso; c.lineWidth = 1; c.beginPath(); c.moveTo(16, FL + .5); c.lineTo(W - 12, FL + .5); c.stroke();
+    // título: aparece detrás del muñeco a medida que pasa
+    const ty = H * .42;
+    c.save(); c.beginPath(); c.rect(0, 0, Math.max(0, x - 6), H); c.clip();
+    c.fillStyle = COL.texto; c.font = `800 ${fs.toFixed(1)}px 'Open Sans','IBM Plex Sans',sans-serif`; c.textAlign = "center"; c.textBaseline = "middle";
+    c.fillText(titulo, W / 2, ty);
+    c.restore();
+    // subtítulo: hora y lugar, cuando el muñeco ya cruzó
+    const a = sstep(DUR * .78, DUR * .78 + .6, t);
+    if(a > 0){ c.globalAlpha = a; c.fillStyle = COL.sub; c.font = "600 12.5px 'Open Sans','IBM Plex Sans',sans-serif"; c.textAlign = "center"; c.textBaseline = "middle";
+      c.fillText(sub, W / 2, ty + fs * .5 + 13, W - 30); c.globalAlpha = 1; }
+    if(t < DUR + .2) muneco(t, x);
+    if(!reduce && t < DUR + 1) avisoRAF = requestAnimationFrame(frame);
+  }
+  cancelAnimationFrame(avisoRAF); avisoRAF = requestAnimationFrame(frame);
+}
+
 let novedadesPendientes = false;
 (function(){ let v = null; try{ v = localStorage.getItem(NEWS_KEY); }catch(e){} if(v !== NEWS_VER) novedadesPendientes = true; })();
 
@@ -1394,6 +1625,7 @@ Promise.race([tryLive(), new Promise(r => setTimeout(r, 4000))]).then(() => {
     setTimeout(() => {
       if(ayudaPendiente){ ayudaPendiente = false; novedadesPendientes = false; abrirAyuda(); }      // primera visita: solo la ayuda
       else if(novedadesPendientes){ novedadesPendientes = false; abrirNews(); }                     // ya la usaba: novedades
+      else abrirAviso();                                                                            // el día de la cena: aviso
     }, 550);
   }, Math.max(0, minSplash - (performance.now() - t0)));
 });
