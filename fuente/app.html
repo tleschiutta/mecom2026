@@ -100,6 +100,11 @@ body.noscroll{overflow:hidden}
 .lang button{border:0;background:none;color:#c9cbd0;font:inherit;font-size:13.5px;font-weight:600;padding:6px 11px;border-radius:8px;cursor:pointer}
 .lang button.on{background:#fff;color:#1d1f23}
 .cfg .row.lg{cursor:default}
+.cfg .row.an{flex-direction:column;align-items:stretch;gap:9px;cursor:default}
+.cfg .row.an .anl{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.anims{display:flex;background:#ffffff14;border-radius:10px;padding:3px;gap:2px}
+.anims button{flex:1;border:0;background:none;color:#c9cbd0;font:inherit;font-size:13.5px;font-weight:600;padding:7px 8px;border-radius:8px;cursor:pointer}
+.anims button.on{background:#fff;color:#1d1f23}
 .help .lang{margin:0 20px 2px;align-self:flex-start}
 /* Pantalla de carga */
 #splash{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
@@ -121,6 +126,12 @@ body.noscroll{overflow:hidden}
 @keyframes llenarCopa{from{transform:translateY(0)}to{transform:translateY(-52px)}}
 @keyframes ola{from{transform:translateX(0)}to{transform:translateX(-80px)}}
 @keyframes pulso{0%,100%{opacity:.55}50%{opacity:1}}
+/* Animación 2: botella que vierte vino desde la esquina */
+#splash > canvas.vertido{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+#splash[data-anim="2"] svg.an1{display:none}
+#splash[data-anim="2"] #splashTxt{position:absolute;left:64%;top:57%;transform:translate(-50%,-50%);white-space:nowrap;z-index:2}
+#splash[data-anim="2"] .malla{opacity:.6}
+:root[data-theme="dark"] #splash[data-anim="2"] .malla{opacity:.95}
 @media (prefers-reduced-motion: reduce){ .ola,#splashTxt{animation:none} .vino-botella{animation-duration:.01s} .vino-copa{animation-duration:.01s;animation-delay:0s} }
 /* Aviso de cambios en el programa */
 .notice{position:fixed;left:50%;transform:translateX(-50%);bottom:72px;z-index:55;width:min(560px,calc(100vw - 24px));
@@ -234,7 +245,7 @@ footer .credit b{color:var(--ink)}
 <body>
 <!-- Pantalla de carga: la botella del MECOM se llena de vino mientras se prepara el programa -->
 <div id="splash" role="status" aria-live="polite">
-  <svg viewBox="0 0 300 420" aria-hidden="true">
+  <svg class="an1" viewBox="0 0 300 420" aria-hidden="true">
     <defs>
       <clipPath id="clipBotella"><path d="M128,28 Q128,18 138,18 L162,18 Q172,18 172,28 L173,120 Q174,150 192,165 Q210,180 210,215 L210,385 Q210,402 192,402 L108,402 Q90,402 90,385 L90,215 Q90,180 108,165 Q126,150 127,120 Z"/></clipPath>
       <clipPath id="clipCopa"><path d="M184,212 L266,212 Q270,268 244,296 Q225,312 206,296 Q180,268 184,212 Z"/></clipPath>
@@ -334,7 +345,168 @@ window.iniciarMalla = function(){
   }
   requestAnimationFrame(frame);
 };
-window.iniciarMalla();
+// ---------- Animación 2 ----------
+// El pico de una botella entra por la esquina superior derecha y vierte un chorro de vino que cae
+// (con caída libre real) hasta el fondo; a medida que llega el vino, la malla sube desde abajo.
+window.iniciarAnim2 = function(){
+  var sp = document.getElementById("splash"); if(!sp) return;
+  sp.querySelectorAll("canvas.malla, canvas.vertido").forEach(function(c){ c.remove(); });
+  var W = window.innerWidth, H = window.innerHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+  function lienzo(cls){ var c = document.createElement("canvas"); c.className = cls; c.setAttribute("aria-hidden", "true");
+    c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); sp.insertBefore(c, sp.firstChild);
+    var x = c.getContext("2d"); if(x) x.scale(dpr, dpr); return x; }
+  var cv = lienzo("vertido"), cm = lienzo("malla"); if(!cv || !cm) return;
+  var vino = getComputedStyle(sp).getPropertyValue("--sp-vino").trim() || "#7a1a52";
+  var oscuro = document.documentElement.dataset.theme === "dark";
+  var VIDRIO = oscuro ? "#1a4790" : "#123a78", VIDRIO2 = "#9cc4f2";
+  var u = Math.min(W, H * .62) / 100;                       // unidad de dibujo
+  var rad = Math.PI / 180;
+  // línea de tiempo (segundos)
+  var LENTO = 1.5;                                          // factor de velocidad (más grande = más lenta)
+  var T_IN = .55 * LENTO, T_POUR = .45 * LENTO, T_STOP = 2.2 * LENTO, T_MESH, D_MESH = 1.6 * LENTO;
+  var MX = Math.min(W * .42, W - 66 * u), MY = H * .36, ANG = -140 * rad;          // boca de la botella y ángulo al servir
+  var tope = H * .63;                                       // altura final de la malla
+  var v0 = 55 * u / LENTO, g = 3.2 * H / (LENTO * LENTO);  // misma curva del chorro, más despacio
+  (function(){ var vy = -Math.cos(ANG) * v0, dist = H - MY; T_MESH = T_POUR + .95 * (-vy + Math.sqrt(vy*vy + 2*g*dist)) / g; })();                             // velocidad de salida y gravedad (px/s, px/s²)
+  // ---- malla (igual que la animación 1, pero sube desde abajo de la pantalla) ----
+  var seed = 11; function rnd(){ seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+  var h = Math.max(58, Math.min(90, W / 6)), nx = Math.ceil(W / h) + 2, ny = Math.ceil((H - tope) / (h * .87)) + 2;
+  var idx = [], N = [], E = [];
+  for(var j = 0; j < ny; j++){ idx.push([]);
+    for(var i = 0; i < nx; i++){
+      var x = (i - 1) * h + (j % 2 ? h / 2 : 0) + (rnd() - .5) * h * .55;
+      var y = H - (j - .5) * h * .87 + (rnd() - .5) * h * .5;
+      if(y < tope){ idx[j].push(-1); continue; }
+      idx[j].push(N.length);
+      N.push({x:x, y:y, d: rnd() * .15, f: 1.6 + rnd() * 1.4, ph: rnd() * 6.283, ax: 8 + rnd() * 14, ay: 4 + rnd() * 6});
+    } }
+  for(var j = 0; j < ny; j++) for(var i = 0; i < nx; i++){
+    var a = idx[j][i]; if(a < 0) continue;
+    if(i + 1 < nx && idx[j][i+1] >= 0) E.push([a, idx[j][i+1]]);
+    if(j + 1 < ny){ var o = j % 2 ? 0 : -1;
+      if(i + o >= 0 && idx[j+1][i+o] >= 0) E.push([a, idx[j+1][i+o]]);
+      if(i + o + 1 < nx && idx[j+1][i+o+1] >= 0) E.push([a, idx[j+1][i+o+1]]); }
+  }
+  function bez(p1, p2, s){ var q = 1 - s; return 3*q*q*s*p1 + 3*q*s*s*p2 + s*s*s; }
+  function ease(x){ if(x <= 0) return 0; if(x >= 1) return 1; var lo = 0, hi = 1, s = x;
+    for(var k = 0; k < 18; k++){ s = (lo + hi) / 2; if(bez(.45, .3, s) < x) lo = s; else hi = s; } return bez(.05, 1, s); }
+  var easeOut = function(x){ x = Math.max(0, Math.min(1, x)); return 1 - Math.pow(1 - x, 3); };
+  var OFF = H - tope + h * 1.2;
+  var X = new Float32Array(N.length), Y = new Float32Array(N.length);
+  function nivel(t){ return tope + OFF * (1 - ease((t - T_MESH) / D_MESH)); }   // superficie del "vino"
+  // ---- botella (dibujada derecha, con la boca en el origen y el fondo hacia +y) ----
+  // Botella de vino clásica (tipo Bordeaux): cuello largo con cápsula, hombros altos y cuerpo recto.
+  function botella(c){
+    var b = .8 * u, lip = 5.2*b, nw = 4.4*b, cw = 4.8*b, bw = 15*b, L = 320*b;
+    function silueta(){
+      c.beginPath();
+      c.moveTo(-lip, 0); c.lineTo(lip, 0); c.lineTo(lip, 3*b); c.lineTo(nw, 3.6*b); c.lineTo(nw, 30*b);
+      c.bezierCurveTo(nw, 38*b, bw, 37*b, bw, 47*b); c.lineTo(bw, L); c.lineTo(-bw, L); c.lineTo(-bw, 47*b);
+      c.bezierCurveTo(-bw, 37*b, -nw, 38*b, -nw, 30*b); c.lineTo(-nw, 3.6*b); c.lineTo(-lip, 3*b); c.closePath();
+    }
+    silueta(); c.fillStyle = VIDRIO; c.fill();
+    c.save(); silueta(); c.clip();
+    // brillo y sombra del vidrio
+    c.fillStyle = "rgba(255,255,255,.13)"; c.fillRect(bw*.38, 40*b, 3.2*b, L); c.fillRect(nw*.2, 3*b, 1.4*b, 30*b);
+    c.fillStyle = "rgba(0,0,0,.22)"; c.fillRect(-bw, 0, 4*b, L);
+    c.restore();
+    // cápsula del cuello
+    c.fillStyle = VIDRIO2; c.beginPath();
+    c.moveTo(-lip, 0); c.lineTo(lip, 0); c.lineTo(lip, 3*b); c.lineTo(cw, 3.6*b); c.lineTo(cw, 25*b); c.lineTo(-cw, 25*b); c.lineTo(-cw, 3.6*b); c.lineTo(-lip, 3*b); c.closePath(); c.fill();
+    c.fillStyle = "rgba(0,0,0,.18)"; c.fillRect(-cw, 21*b, cw*2, 1.3*b); c.fillRect(-lip, 2.2*b, lip*2, .9*b);
+    c.fillStyle = "rgba(255,255,255,.35)"; c.fillRect(cw*.25, 4*b, 1.2*b, 17*b);
+    // etiqueta crema con borde fino; el texto queda "cabeza abajo", como al servir
+    var y0 = 58*b, y1 = 92*b, lw = bw - 1.6*b;
+    c.fillStyle = "#f3ead8"; c.fillRect(-lw, y0, lw*2, y1 - y0);
+    c.strokeStyle = "#134082"; c.lineWidth = .5*b; c.strokeRect(-lw + 1.6*b, y0 + 1.6*b, lw*2 - 3.2*b, y1 - y0 - 3.2*b);
+    c.fillStyle = "rgba(0,0,0,.10)"; c.fillRect(-lw, y0, 3*b, y1 - y0);
+    c.save(); c.translate(0, (y0 + y1) / 2);
+    c.textAlign = "center"; c.textBaseline = "middle"; c.fillStyle = "#134082";
+    c.font = "800 " + (7*b).toFixed(1) + "px 'Open Sans','IBM Plex Sans',sans-serif"; c.fillText("MECOM", 0, -3.6*b, lw*2 - 6*b);
+    c.fillStyle = vino; c.font = "700 " + (5.4*b).toFixed(1) + "px 'IBM Plex Mono','Open Sans',monospace"; c.fillText("2026", 0, 5.8*b, lw*2 - 6*b);
+    c.restore();
+  }
+  function pose(t){
+    // entra deslizándose desde fuera de la pantalla; al terminar de servir se endereza un poco
+    var e = easeOut(t / T_IN), ang = (-108 + (-32) * e) * rad, sal = (1 - e) * H * .75;
+    var r = easeOut((t - T_STOP) / (.45 * LENTO)); ang += 7 * r * rad;
+    var ax = -Math.sin(ANG), ay = Math.cos(ANG);            // dirección hacia el fondo de la botella
+    return {x: MX + ax * sal, y: MY + ay * sal, a: ang};
+  }
+  // dirección de salida del chorro (hacia la boca)
+  var dx = Math.sin(ANG), dy = -Math.cos(ANG);
+  function chorro(t, te){ var a = t - te; return {x: MX + dx * v0 * a, y: MY + dy * v0 * a + .5 * g * a * a, vx: dx * v0, vy: dy * v0 + g * a, a: a}; }
+  var gotas = [];
+  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var t0 = performance.now(), tPrev = 0;
+  function frame(now){
+    if(!sp.isConnected || sp.classList.contains("hide")) return;
+    var t = reduce ? 99 : (now - t0) / 1000, dt = Math.min(.05, t - tPrev); tPrev = t;
+    var S = nivel(t);
+    // malla
+    for(var n = 0; n < N.length; n++){
+      var q = N[n], e = ease((t - T_MESH - q.d) / D_MESH), k = 1 - e, w = 2 * Math.PI * q.f * t + q.ph;
+      X[n] = q.x + Math.sin(w) * (q.ax * k + 1.2);
+      Y[n] = q.y + OFF * k + Math.cos(w * .8) * (q.ay * k + 1);
+    }
+    cm.clearRect(0, 0, W, H);
+    cm.strokeStyle = vino; cm.lineWidth = 2; cm.lineCap = "round"; cm.beginPath();
+    for(var m = 0; m < E.length; m++){ var a = E[m][0], b = E[m][1];
+      if(Y[a] > H + 20 && Y[b] > H + 20) continue; cm.moveTo(X[a], Y[a]); cm.lineTo(X[b], Y[b]); }
+    cm.stroke();
+    cm.fillStyle = vino; cm.beginPath();
+    for(var n = 0; n < N.length; n++){ if(Y[n] > H + 10) continue; cm.moveTo(X[n] + 4.2, Y[n]); cm.arc(X[n], Y[n], 4.2, 0, 6.2832); }
+    cm.fill();
+    // chorro: cada "porción" de vino sale de la boca en el instante te y cae libremente
+    cv.clearRect(0, 0, W, H);
+    var fin = Math.min(t, T_STOP), ini = T_POUR, L = [], R = [], choca = null;
+    if(t > T_POUR){
+      var paso = 1 / 120;
+      for(var te = fin; te >= ini - 1e-9; te -= paso){
+        var p = chorro(t, te);
+        if(p.y > S + 6 || p.y > H + 20){ choca = p; break; }
+        var vn = Math.hypot(p.vx, p.vy), nxv = -p.vy / vn, nyv = p.vx / vn;
+        var ancho = 4.6 * u / (1 + 1.5 * p.a) + 1.2 * u;
+        var ond = Math.sin(p.a * 28 - t * 16) * u * .5 * Math.min(1, p.a * 3);
+        L.push([p.x + nxv * (ancho / 2 + ond), p.y + nyv * (ancho / 2 + ond)]);
+        R.push([p.x - nxv * (ancho / 2 - ond), p.y - nyv * (ancho / 2 - ond)]);
+      }
+      if(L.length > 1){
+        cv.fillStyle = vino; cv.beginPath(); cv.moveTo(L[0][0], L[0][1]);
+        for(var i = 1; i < L.length; i++) cv.lineTo(L[i][0], L[i][1]);
+        for(var i = R.length - 1; i >= 0; i--) cv.lineTo(R[i][0], R[i][1]);
+        cv.closePath(); cv.fill();
+        // punta redondeada del chorro mientras cae
+        var ul = L.length - 1, cx = (L[ul][0] + R[ul][0]) / 2, cy = (L[ul][1] + R[ul][1]) / 2;
+        var rr = Math.hypot(L[ul][0] - R[ul][0], L[ul][1] - R[ul][1]) / 2;
+        cv.beginPath(); cv.arc(cx, cy, rr, 0, 6.2832); cv.fill();
+        // salpicaduras donde el chorro llega a la superficie
+        if(choca && !reduce){ for(var s2 = 0; s2 < 2; s2++) gotas.push({x: choca.x + (Math.random() - .5) * 2.5 * u, y: Math.min(S, H) ,
+          vx: (Math.random() - .5) * 46 * u, vy: -(25 + Math.random() * 45) * u, r: (.5 + Math.random() * .9) * u}); }
+      }
+    }
+    cv.fillStyle = vino;
+    for(var i = gotas.length - 1; i >= 0; i--){ var d = gotas[i];
+      d.vy += g * .8 * dt; d.x += d.vx * dt; d.y += d.vy * dt;
+      if(d.y > Math.min(S, H) + 4 && d.vy > 0){ gotas.splice(i, 1); continue; }
+      cv.beginPath(); cv.arc(d.x, d.y, d.r, 0, 6.2832); cv.fill(); }
+    if(gotas.length > 160) gotas.splice(0, gotas.length - 160);
+    // botella encima del chorro
+    var P = pose(t);
+    cv.save(); cv.translate(P.x, P.y); cv.rotate(P.a); botella(cv); cv.restore();
+    if(!reduce) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+};
+// Elige la animación de carga (la 2 es la nueva; la 1 es la botella con la copa)
+window.ANIM = (function(){ var a = null; try{ a = localStorage.getItem("mecom2026.animacion"); }catch(e){} return a === "1" ? "1" : "2"; })();
+window.iniciarSplash = function(n){
+  var sp = document.getElementById("splash"); if(!sp) return;
+  n = n || window.ANIM; sp.dataset.anim = n;
+  sp.querySelectorAll("canvas.vertido").forEach(function(c){ c.remove(); });
+  if(n === "2") window.iniciarAnim2(); else window.iniciarMalla();
+};
+window.iniciarSplash();
 </script>
 <header>
   <div class="brand"><h1>MECOM 2026</h1>
@@ -400,8 +572,9 @@ window.iniciarMalla();
     <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.6-3 4.5"/><path d="M12 17.5h.01"/></svg></button>
   <button class="row" id="cfgShare"><span data-i18n="share">Compartir la app</span>
     <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button>
-  <button class="row" id="cfgAnim"><span data-i18n="anim">Ver la animación</span>
-    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2.5h10l-.4 6.2a4.6 4.6 0 0 1-9.2 0z"/><path d="M7.3 6.8h9.4" opacity=".55"/><path d="M12 13.3V21"/><path d="M8 21h8"/></svg></button>
+  <div class="row an" id="cfgAnim"><span class="anl"><span data-i18n="anim">Animación de carga</span>
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2.5h10l-.4 6.2a4.6 4.6 0 0 1-9.2 0z"/><path d="M7.3 6.8h9.4" opacity=".55"/><path d="M12 13.3V21"/><path d="M8 21h8"/></svg></span>
+    <span class="anims" role="radiogroup"><button data-anim="1" role="radio" data-i18n="an1">Animación 1</button><button data-anim="2" role="radio" data-i18n="an2">Animación 2</button></span></div>
   <div class="info" id="cfgInfo"></div>
 </div>
 <div class="help share" id="shareDlg" role="dialog" aria-modal="true" aria-labelledby="shareT">
@@ -483,7 +656,7 @@ const I18N = {
   allSes:"Todas las sesiones", sim:"Simular un momento del congreso:", ics:"Exportar a calendario (.ics)", copy:"Copiar lista", clear:"Vaciar", clearSure:"¿Seguro? Tocá de nuevo",
   credit:'Creado por <b>Tomás Leschiutta</b> como un aporte voluntario para el MECOM 2026.<br>Es un proyecto sin fines de lucro, hecho solo para ayudar al congreso y a quienes participan.<br><i>Esta no es la app oficial de AMCA: ante cualquier diferencia, vale el programa oficial.</i>',
   dataSrc:"Datos: programa oficial publicado por AMCA", pdf:"Ver programa oficial (PDF)",
-  lang:"Idioma", dark:"Modo oscuro", upd:"Actualizar", howto:"Cómo usar la app", share:"Compartir la app", anim:"Ver la animación", shareT:"Compartí la app", shareSub:"Mostrá este QR o mandá el link por WhatsApp.", shareWa:"Compartir por WhatsApp", shareCopy:"Copiar link", shareMore:"Más opciones…",
+  lang:"Idioma", dark:"Modo oscuro", upd:"Actualizar", howto:"Cómo usar la app", share:"Compartir la app", anim:"Animación de carga", an1:"Animación 1", an2:"Animación 2", shareT:"Compartí la app", shareSub:"Mostrá este QR o mandá el link por WhatsApp.", shareWa:"Compartir por WhatsApp", shareCopy:"Copiar link", shareMore:"Más opciones…",
   shareMsg:"Programa interactivo del MECOM 2026 (Mendoza, 10 al 13 de noviembre): sesiones, búsqueda, tu agenda y lo que está pasando ahora. 👉 ", tRefresh:"Programa actualizado",
   vLugar:"Lugar", vDir:"Dirección", vLleg:"Distancia", vLlegTxt:"A unos 10 minutos en auto del centro de Mendoza.", vMaps:"Abrir en Google Maps", vRuta:"Cómo llegar", vMapa:"Mapa de la ubicación",
   nwT:"¡La app se actualizó!", nwSub:"Esto es lo nuevo:", nwShare:"Compartir ahora", nwVer:"Ver en el programa", nwOk:"Entendido",
@@ -527,7 +700,7 @@ const I18N = {
   allSes:"All sessions", sim:"Simulate a moment during the congress:", ics:"Export to calendar (.ics)", copy:"Copy list", clear:"Clear", clearSure:"Sure? Tap again",
   credit:'Created by <b>Tomás Leschiutta</b> as a volunteer contribution to MECOM 2026.<br>This is a non-profit project, made only to help the congress and its participants.<br><i>This is not the official AMCA app: if anything differs, the official program prevails.</i>',
   dataSrc:"Data: official program published by AMCA", pdf:"See the official program (PDF)",
-  lang:"Language", dark:"Dark mode", upd:"Refresh", howto:"How to use the app", share:"Share the app", anim:"Play the animation", shareT:"Share the app", shareSub:"Show this QR code or send the link on WhatsApp.", shareWa:"Share on WhatsApp", shareCopy:"Copy link", shareMore:"More options…",
+  lang:"Language", dark:"Dark mode", upd:"Refresh", howto:"How to use the app", share:"Share the app", anim:"Loading animation", an1:"Animation 1", an2:"Animation 2", shareT:"Share the app", shareSub:"Show this QR code or send the link on WhatsApp.", shareWa:"Share on WhatsApp", shareCopy:"Copy link", shareMore:"More options…",
   shareMsg:"Interactive program of MECOM 2026 (Mendoza, November 10–13): sessions, search, your agenda and what is on right now. 👉 ", tRefresh:"Program refreshed",
   vLugar:"Venue", vDir:"Address", vLleg:"Distance", vLlegTxt:"About a 10-minute drive from downtown Mendoza.", vMaps:"Open in Google Maps", vRuta:"Directions", vMapa:"Location map",
   nwT:"The app has been updated!", nwSub:"Here's what's new:", nwShare:"Share now", nwVer:"See it in the program", nwOk:"Got it",
@@ -1097,16 +1270,21 @@ document.addEventListener("keydown", e => { if(e.key === "Escape" && $("#shareDl
 
 // ---------- Volver a ver la animación del vino ----------
 let animTimer = null;
-function lanzarAnimacion(){
+function lanzarAnimacion(n){
   toggleCfg(false);
   const sp = $("#splash"); if(!sp) return;
   // se reemplazan los dibujos por copias para que las animaciones CSS arranquen de cero
   sp.querySelectorAll("svg, #splashTxt").forEach(el => el.replaceWith(el.cloneNode(true)));
   sp.classList.remove("hide");
-  window.iniciarMalla();
-  clearTimeout(animTimer); animTimer = setTimeout(() => sp.classList.add("hide"), 3000);
+  window.iniciarSplash(n || window.ANIM);
+  clearTimeout(animTimer); animTimer = setTimeout(() => sp.classList.add("hide"), (n || window.ANIM) === "2" ? 4400 : 3000);
 }
-$("#cfgAnim").addEventListener("click", lanzarAnimacion);
+// Selector de animación: la elegida es la que se ve al abrir la app; tocarla la reproduce.
+function renderAnimSel(){ document.querySelectorAll("#cfgAnim [data-anim]").forEach(b => { const on = b.dataset.anim === window.ANIM; b.classList.toggle("on", on); b.setAttribute("aria-checked", on); }); }
+document.querySelectorAll("#cfgAnim [data-anim]").forEach(b => b.addEventListener("click", e => {
+  e.stopPropagation(); window.ANIM = b.dataset.anim; try{ localStorage.setItem("mecom2026.animacion", window.ANIM); }catch(err){}
+  renderAnimSel(); lanzarAnimacion(window.ANIM); }));
+renderAnimSel();
 $("#splash").addEventListener("click", () => { if(!$("#splash").classList.contains("hide")){ clearTimeout(animTimer); $("#splash").classList.add("hide"); } });
 
 // ---------- Ayuda (se muestra la primera vez y se reabre desde Configuración) ----------
@@ -1209,7 +1387,7 @@ function init(){
 applyLang(); init(); renderCfg();
 const t0 = performance.now();
 const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-const minSplash = reduce ? 600 : 2800;
+const minSplash = reduce ? 600 : (window.ANIM === "2" ? 4200 : 2800);
 Promise.race([tryLive(), new Promise(r => setTimeout(r, 4000))]).then(() => {
   setTimeout(() => {
     $("#splash").classList.add("hide");
