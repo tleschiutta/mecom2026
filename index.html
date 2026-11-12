@@ -221,6 +221,38 @@ main{max-width:760px;margin:0 auto;padding:12px 12px 90px}
 .aviso canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .aviso .franja{position:absolute;left:0;top:0;bottom:0;width:6px;background:#7a1a52;z-index:1}
 .aviso .x{position:absolute;top:4px;right:6px;z-index:2;width:34px;height:34px;border:0;background:none;color:var(--muted);font-size:24px;line-height:1;cursor:pointer}
+.aviso .caja.mesa{height:auto;cursor:default;display:flex;flex-direction:column}
+.aviso .caja.mesa canvas{position:relative;inset:auto;width:100%;height:172px;flex:none}
+.mtx{padding:2px 18px 16px 22px;animation:mtxIn .5s ease .8s both}
+@keyframes mtxIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.mtx h3{margin:0 0 6px;font-size:17px;line-height:1.3;color:var(--ink)}
+.mtx .mcuando{margin:0 0 6px;font-weight:700;font-size:14.5px;color:#7a1a52}
+:root[data-theme="dark"] .mtx .mcuando{color:#e48bbf}
+.mtx .mtemas{margin:0 0 12px;color:var(--muted);font-size:13px;line-height:1.45}
+.mbs{display:flex;gap:8px}
+.mb{flex:1;border:0;border-radius:10px;padding:10px 12px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;background:var(--base);color:#fff}
+.mb.sec{background:var(--base-soft);color:var(--base-2)}
+/* Avisos abajo: pila de tarjetas (se ve la de adelante y asoma el borde de las de atrás) */
+.avisos{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom));z-index:54;width:min(560px,calc(100vw - 24px))}
+.avisos[hidden]{display:none}
+.mbar{display:flex;align-items:center;background:var(--card);border:1px solid var(--line);border-left:5px solid var(--acento,#7a1a52);border-radius:14px;
+  box-shadow:0 8px 28px rgba(0,0,0,.22)}
+.mbar.frente{position:relative;z-index:3;animation:barIn .35s ease;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.mbar.atras{position:absolute;left:0;right:0;bottom:0;height:100%;pointer-events:none;transform-origin:50% 100%;
+  transform:translateY(calc(var(--i) * -11px)) scale(calc(1 - var(--i) * .05));z-index:calc(3 - var(--i));filter:brightness(.97)}
+.mbar.atras > *{visibility:hidden}
+:root[data-theme="dark"] .mbar.atras{filter:brightness(.82)}
+@keyframes barIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.mbar-b{flex:1;min-width:0;display:flex;align-items:center;gap:10px;border:0;background:none;text-align:left;padding:8px 4px 8px 10px;cursor:pointer;font:inherit;color:var(--ink)}
+.mbar-b b{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:13.5px;line-height:1.25}
+.mbar-b small{display:block;font-size:12px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mbar-b > span{min-width:0}
+.mbar-ic{flex:none;width:34px;height:34px}
+.mbar-n{flex:none;border:0;border-radius:999px;background:var(--base-soft);color:var(--base-2);font:inherit;font-size:12px;font-weight:700;padding:5px 9px;cursor:pointer;display:flex;align-items:center;gap:3px}
+.mbar-x{flex:none;width:40px;height:46px;border:0;background:none;color:var(--muted);font-size:22px;cursor:pointer}
+body.conbarra{padding-bottom:86px}
+body.conbarra .toast{bottom:96px}
+body.conbarra .notice{bottom:148px}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 /* Actividades que ya pasaron */
 .past{opacity:.42}
@@ -645,6 +677,19 @@ window.iniciarSplash();
     <span class="vh" id="avisoT"></span>
     <button class="x" id="avisoX" data-i18n-aria="close" aria-label="Cerrar">×</button></div>
 </div>
+<div class="aviso" id="mesa" role="dialog" aria-modal="true" aria-labelledby="mesaT">
+  <div class="caja mesa" id="mesaCaja"><span class="franja"></span>
+    <button class="x" id="mesaX" data-i18n-aria="close" aria-label="Cerrar">×</button>
+    <canvas id="mesaCv" aria-hidden="true"></canvas>
+    <div class="mtx">
+      <h3 id="mesaT" data-i18n="mT">¡Sumate a la mesa redonda sobre Enseñanza de Métodos Numéricos!</h3>
+      <p class="mcuando" id="mesaCuando"></p>
+      <p class="mtemas" data-i18n="mTemas">Temas: actividades de enseñanza, ejercitación y evaluación en tiempos de uso masivo de IA.</p>
+      <div class="mbs"><button class="mb" id="mesaVer" data-i18n="nwVer">Ver en el programa</button><button class="mb sec" id="mesaOk" data-i18n="close">Cerrar</button></div>
+    </div>
+  </div>
+</div>
+<div class="avisos" id="avisos" hidden aria-live="polite"></div>
 <div class="notice" id="notice" role="status"><span id="noticeTxt"></span><button id="noticeX" data-i18n-aria="close" aria-label="Cerrar">×</button></div>
 
 <script>
@@ -678,7 +723,10 @@ const I18N = {
   lang:"Idioma", dark:"Modo oscuro", upd:"Actualizar", howto:"Cómo usar la app", share:"Compartir la app", avVer:"Ver aviso de la cena", anim:"Animación de carga", an1:"Animación 1", an2:"Animación 2", shareT:"Compartí la app", shareSub:"Mostrá este QR o mandá el link por WhatsApp.", shareWa:"Compartir por WhatsApp", shareCopy:"Copiar link", shareMore:"Más opciones…",
   shareMsg:"Programa interactivo del MECOM 2026 (Mendoza, 10 al 13 de noviembre): sesiones, búsqueda, tu agenda y lo que está pasando ahora. 👉 ", tRefresh:"Programa actualizado",
   vLugar:"Lugar", vDir:"Dirección", vLleg:"Distancia", vLlegTxt:"A unos 10 minutos en auto del centro de Mendoza.", vMaps:"Abrir en Google Maps", vRuta:"Cómo llegar", vMapa:"Mapa de la ubicación",
-  avT:"¡Hoy! Cena de camaradería", avSub:(h, l) => `${h} · ${l} · Tocá para ver el mapa`,
+  mT:"¡Sumate a la mesa redonda sobre Enseñanza de Métodos Numéricos!", mCuando:(d, h, sala) => `${d}/11 · ${h} h · ${sala} · ¡Te esperamos!`,
+  mTemas:"Temas: actividades de enseñanza, ejercitación y evaluación en tiempos de uso masivo de IA.",
+  mBarT:"Mesa redonda: Métodos Numéricos", mBarS:(d, h, sala) => `${d}/11 · ${h} h · ${sala}`,
+  avT:"¡Hoy! Cena de camaradería", cBarT:"Hoy: Cena de camaradería", cBarS:(h, l) => `${h} h · ${l}`, sigAviso:"Ver el siguiente aviso", avSub:(h, l) => `${h} · ${l} · Tocá para ver el mapa`,
   nwT:"¡La app se actualizó!", nwSub:"Esto es lo nuevo:", nwShare:"Compartir ahora", nwVer:"Ver en el programa", nwOk:"Entendido",
   nw1:'<b>Compartí la app con tus colegas</b>Entrá a <span class="k">⚙ Configuración</span> › <span class="k">Compartir la app</span>: ahí tenés un QR para mostrar y un botón para mandar el link por WhatsApp.',
   nw2:'<b>Cena de camaradería · jueves 12, 21:00</b>Es en <b style="display:inline">Bodega Los Toneles</b>, Acceso Este, Lateral Norte 1360, Guaymallén (a unos 10 minutos en auto del centro). En el programa del jueves, tocá la cena para ver el mapa.',
@@ -723,7 +771,10 @@ const I18N = {
   lang:"Language", dark:"Dark mode", upd:"Refresh", howto:"How to use the app", share:"Share the app", avVer:"Show the dinner notice", anim:"Loading animation", an1:"Animation 1", an2:"Animation 2", shareT:"Share the app", shareSub:"Show this QR code or send the link on WhatsApp.", shareWa:"Share on WhatsApp", shareCopy:"Copy link", shareMore:"More options…",
   shareMsg:"Interactive program of MECOM 2026 (Mendoza, November 10–13): sessions, search, your agenda and what is on right now. 👉 ", tRefresh:"Program refreshed",
   vLugar:"Venue", vDir:"Address", vLleg:"Distance", vLlegTxt:"About a 10-minute drive from downtown Mendoza.", vMaps:"Open in Google Maps", vRuta:"Directions", vMapa:"Location map",
-  avT:"Tonight! Conference dinner", avSub:(h, l) => `${h} · ${l} · Tap to see the map`,
+  mT:"Join the round table on Teaching Numerical Methods!", mCuando:(d, h, sala) => `${d}/11 · ${h} · ${sala} · See you there!`,
+  mTemas:"Topics: teaching, practice and assessment activities in times of widespread AI use.",
+  mBarT:"Round table: Numerical Methods", mBarS:(d, h, sala) => `${d}/11 · ${h} · ${sala}`,
+  avT:"Tonight! Conference dinner", cBarT:"Tonight: Conference dinner", cBarS:(h, l) => `${h} · ${l}`, sigAviso:"Show the next notice", avSub:(h, l) => `${h} · ${l} · Tap to see the map`,
   nwT:"The app has been updated!", nwSub:"Here's what's new:", nwShare:"Share now", nwVer:"See it in the program", nwOk:"Got it",
   nw1:'<b>Share the app with your colleagues</b>Go to <span class="k">⚙ Settings</span> › <span class="k">Share the app</span>: there is a QR code to show and a button to send the link via WhatsApp.',
   nw2:'<b>Conference dinner · Thursday 12, 21:00</b>It takes place at <b style="display:inline">Bodega Los Toneles</b>, Acceso Este, Lateral Norte 1360, Guaymallén (about a 10-minute drive from downtown). In Thursday\'s program, tap the dinner to see the map.',
@@ -1281,7 +1332,7 @@ $("#noticeX").addEventListener("click", () => $("#notice").classList.remove("sho
 // ---------- Compartir la app ----------
 const APP_URL = "https://tleschiutta.github.io/mecom2026/";
 function abrirShare(){ $("#shareDlg").classList.add("open"); document.body.classList.add("noscroll"); layerOpen("share", cerrarShare); toggleCfg(false); }
-function cerrarShare(){ $("#shareDlg").classList.remove("open"); document.body.classList.remove("noscroll"); layerDone("share"); }
+function cerrarShare(){ $("#shareDlg").classList.remove("open"); document.body.classList.remove("noscroll"); layerDone("share"); if(typeof actualizarAvisos === "function") actualizarAvisos(); }
 $("#cfgShare").addEventListener("click", abrirShare);
 $("#shareX").addEventListener("click", cerrarShare);
 $("#shareDlg").addEventListener("click", e => { e.stopPropagation(); if(e.target.id === "shareDlg") cerrarShare(); });
@@ -1315,7 +1366,7 @@ const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platfo
 const instalada = window.matchMedia && matchMedia("(display-mode: standalone)").matches || navigator.standalone;
 const instTxt = () => T(instalada ? "instDone" : esIOS ? "instIOS" : "instAnd");
 function abrirAyuda(){ $("#help").classList.add("open"); document.body.classList.add("noscroll"); layerOpen("help", cerrarAyuda); toggleCfg(false); }
-function cerrarAyuda(){ $("#help").classList.remove("open"); document.body.classList.remove("noscroll"); try{ localStorage.setItem(HELP_KEY,"1"); localStorage.setItem(NEWS_KEY, NEWS_VER); }catch(e){} layerDone("help"); setTimeout(abrirAviso, 450); }
+function cerrarAyuda(){ $("#help").classList.remove("open"); document.body.classList.remove("noscroll"); try{ localStorage.setItem(HELP_KEY,"1"); localStorage.setItem(NEWS_KEY, NEWS_VER); }catch(e){} layerDone("help"); actualizarAvisos(); }
 $("#cfgHelp").addEventListener("click", abrirAyuda);
 $("#helpOk").addEventListener("click", cerrarAyuda);
 $("#helpX").addEventListener("click", cerrarAyuda);
@@ -1334,7 +1385,7 @@ function cerrarNews(){
   if(!document.querySelector(".help.open")) document.body.classList.remove("noscroll");
   try{ localStorage.setItem(NEWS_KEY, NEWS_VER); }catch(e){}
   layerDone("news");
-  setTimeout(abrirAviso, 450);
+  actualizarAvisos();
 }
 function irACena(){
   const it = D.items.find(x => x.id === CENA_ID) || D.items.find(x => lugarDe(x));
@@ -1343,7 +1394,7 @@ function irACena(){
   avisoMostrado = true;                                    // ya se está mostrando la cena: no hace falta el aviso
   if(!open.has(k)){ open.add(k); layerOpen("open:"+k, () => closeOpenKey(k)); }
   if($("#news").classList.contains("open")) cerrarNews();
-  if($("#aviso").classList.contains("open")) cerrarAviso();
+  if($("#aviso").classList.contains("open")) cerrarAviso(false);
   state.q = ""; state.ses = ""; $("#q").value = ""; $("#fSes").value = ""; layerDone("filtro");
   state.day = it.dia;
   if(state.tab !== "programa") setTab("programa"); else render();
@@ -1365,17 +1416,20 @@ const AVISO_FIGURA = (location.hash.match(/fig=(malla|tango)/) || [])[1] || "tan
 const cenaItem = () => D.items.find(x => x.id === CENA_ID) || D.items.find(x => lugarDe(x));
 function avisoCenaHoy(){ const it = cenaItem(); if(!it) return false; const {dia, hm} = nowParts(); return it.dia === dia && hm < (it.fin || "23:59"); }
 function abrirAviso(forzar){
-  if(!avisoCenaHoy() || document.querySelector(".help.open") || $("#aviso").classList.contains("open")) return;
-  if(avisoMostrado && !forzar) return;
+  if(!avisoCenaHoy() || document.querySelector(".help.open") || document.querySelector(".aviso.open")) return false;
+  if(avisoMostrado && !forzar) return false;
   avisoMostrado = true;
   $("#avisoT").textContent = T("avT");
   $("#aviso").classList.add("open"); layerOpen("aviso", cerrarAviso); toggleCfg(false);
   requestAnimationFrame(() => animarAviso(cenaItem()));
   clearTimeout(avisoTimer); avisoTimer = setTimeout(cerrarAviso, 12000);
+  actualizarAvisos();
+  return true;
 }
-function cerrarAviso(){
+function cerrarAviso(seguir){
   if(!$("#aviso").classList.contains("open")) return;
   $("#aviso").classList.remove("open"); cancelAnimationFrame(avisoRAF); clearTimeout(avisoTimer); layerDone("aviso");
+  actualizarAvisos();
 }
 $("#avisoX").addEventListener("click", e => { e.stopPropagation(); cerrarAviso(); });
 $("#cfgAviso").addEventListener("click", e => { e.stopPropagation(); abrirAviso(true); });
@@ -1562,6 +1616,248 @@ function animarAviso(it){
   cancelAnimationFrame(avisoRAF); avisoRAF = requestAnimationFrame(frame);
 }
 
+// ---------- Invitación a la mesa redonda (S16: Enseñanza de Métodos Numéricos) ----------
+// Una profe escribe el método de Euler en el pizarrón y dibuja la aproximación mientras un robot mira; al final al robot
+// se le prende la lamparita. Sale sola una vez por día hasta que termina la mesa; después queda una barra abajo:
+// tocándola se repite la animación y con la × se cierra (por ese día).
+if(!CanvasRenderingContext2D.prototype.roundRect){            // iOS antiguos
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r){ r = Math.min(r, w / 2, h / 2);
+    this.moveTo(x + r, y); this.arcTo(x + w, y, x + w, y + h, r); this.arcTo(x + w, y + h, x, y + h, r); this.arcTo(x, y + h, x, y, r); this.arcTo(x, y, x + w, y, r); this.closePath(); };
+}
+const MESA_ID = "E28", MESA_KEY = "mecom2026.mesaAuto";
+let mesaMostrada = false, mesaRAF = 0;
+const mesaItem = () => D.items.find(x => x.id === MESA_ID);
+function mesaVigente(){ const it = mesaItem(); if(!it) return false; const {dia, hm} = nowParts(); return dia + " " + hm < it.dia + " " + (it.fin || "23:59"); }
+function mesaTextos(){
+  const it = mesaItem(), dl = DIAS_L[it.dia] || it.dia, h = String(it.inicio).replace(/^0/, ""), sala = salaTxt(it.sala);
+  $("#mesaCuando").textContent = T("mCuando", dl, h, sala);
+}
+function abrirMesa(forzar){
+  if(!mesaVigente() || document.querySelector(".help.open") || document.querySelector(".aviso.open")) return false;
+  mesaMostrada = true;
+  mesaTextos();
+  $("#mesa").classList.add("open"); layerOpen("mesa", cerrarMesa); toggleCfg(false);
+  actualizarAvisos();
+  requestAnimationFrame(animarMesa);
+  return true;
+}
+function cerrarMesa(){
+  if(!$("#mesa").classList.contains("open")) return;
+  $("#mesa").classList.remove("open"); cancelAnimationFrame(mesaRAF); layerDone("mesa"); actualizarAvisos();
+}
+// Tarjetas de aviso abajo. Se apilan (primero la mesa redonda); deslizando con el dedo o con "1/2" se pasa a la otra;
+// la × la cierra por ese día.
+const AV_CERR = "mecom2026.avisoCerrado.";
+let avFrente = 0, avFirma = "";
+function avisosActivos(){
+  const hoy = nowParts().dia, cerrado = k => { try{ return localStorage.getItem(AV_CERR + k) === hoy; }catch(e){ return false; } };
+  const L = [];
+  if(avisoCenaHoy() && !cerrado("cena")){ const it = cenaItem(), lug = lugarDe(it) ? String(it.notas || it.sala).trim() : "";
+    L.push({k:"cena", acento:"#7a1a52", t:T("cBarT"), s:T("cBarS", String(it.inicio).replace(/^0/, ""), lug), cuando:it.dia + " " + it.inicio,
+      ic:'<svg class="mbar-ic" viewBox="0 0 34 34" aria-hidden="true"><path d="M10 5h14l-.6 8.3a6.4 6.4 0 0 1-12.8 0z" fill="#7a1a52"/><path d="M10.4 9.6h13.2" stroke="#fff" stroke-opacity=".35" stroke-width="1.4"/><path d="M17 20v8" stroke="#7a1a52" stroke-width="2.2"/><path d="M11.5 29h11" stroke="#7a1a52" stroke-width="2.2" stroke-linecap="round"/></svg>'}); }
+  if(mesaVigente() && !cerrado("mesa")){ const it = mesaItem(), h = String(it.inicio).replace(/^0/, "");
+    L.push({k:"mesa", acento:"#134082", t:T("mBarT"), s:T("mBarS", DIAS[it.dia] + " " + it.dia.slice(8), h, salaTxt(it.sala)), cuando:it.dia + " " + it.inicio,
+      ic:'<svg class="mbar-ic" viewBox="0 0 34 34" aria-hidden="true"><line x1="17" y1="4" x2="17" y2="9" stroke="#134082" stroke-width="2"/><circle cx="17" cy="4" r="2.6" fill="#7a1a52"/><rect x="6" y="9" width="22" height="16" rx="5" fill="#134082"/><rect x="9.5" y="12.2" width="15" height="9.6" rx="3" fill="#0b1e3d"/><circle cx="14" cy="17" r="1.8" fill="#5fe0ff"/><circle cx="20" cy="17" r="1.8" fill="#5fe0ff"/><rect x="11" y="26" width="12" height="5" rx="2" fill="#134082"/></svg>'}); }
+  const orden = {mesa: 0, cena: 1};                                   // primero la mesa redonda, después la cena
+  return L.sort((a, b) => orden[a.k] - orden[b.k]);
+}
+function actualizarAvisos(){
+  const caja = $("#avisos"), L = avisosActivos();
+  const ver = L.length > 0 && !document.querySelector(".aviso.open, .help.open") && !$("#splash:not(.hide)");
+  caja.hidden = !ver; document.body.classList.toggle("conbarra", ver);
+  if(!ver) return;
+  if(avFrente >= L.length) avFrente = 0;
+  const firma = LANG + "|" + avFrente + "|" + L.map(a => a.k + a.s).join("|");
+  if(firma === avFirma && caja.childElementCount) return;              // nada cambió: no volver a dibujar (evita repetir la animación)
+  avFirma = firma;
+  const orden = L.map((a, i) => L[(avFrente + i) % L.length]);
+  caja.innerHTML = orden.map((a, i) => i === 0
+    ? `<div class="mbar frente" style="--acento:${a.acento}"><button class="mbar-b" data-abrir="${a.k}">${a.ic}<span><b>${esc(a.t)}</b><small>${esc(a.s)}</small></span></button>`
+      + (L.length > 1 ? `<button class="mbar-n" data-sig aria-label="${esc(T("sigAviso"))}">${avFrente + 1}/${L.length}<span aria-hidden="true">›</span></button>` : "")
+      + `<button class="mbar-x" data-cerrar="${a.k}" aria-label="${esc(T("close"))}">×</button></div>`
+    : `<div class="mbar atras" style="--acento:${a.acento};--i:${i}" aria-hidden="true"><span class="mbar-b">${a.ic}<span><b>${esc(a.t)}</b><small>${esc(a.s)}</small></span></span></div>`).join("");
+}
+let avDesliz = null, avRecienDeslizo = false;
+function avPasar(dir){ const n = avisosActivos().length; if(n < 2) return; avFrente = ((avFrente + dir) % n + n) % n; avFirma = ""; actualizarAvisos(); }
+$("#avisos").addEventListener("pointerdown", e => {
+  const f = e.target.closest(".mbar.frente"); if(!f || e.target.closest("[data-cerrar],[data-sig]")) return;
+  avDesliz = {x: e.clientX, y: e.clientY, f, dx: 0, mov: false, id: e.pointerId};
+});
+$("#avisos").addEventListener("pointermove", e => {
+  const d = avDesliz; if(!d || e.pointerId !== d.id) return;
+  const dx = e.clientX - d.x, dy = e.clientY - d.y;
+  if(!d.mov){ if(Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy) * 1.2){ d.mov = true; try{ d.f.setPointerCapture(e.pointerId); }catch(err){} d.f.style.animation = "none"; d.f.style.transition = "none"; } else return; }
+  d.dx = dx; d.f.style.transform = `translateX(${dx}px) rotate(${dx / 45}deg)`; d.f.style.opacity = String(1 - Math.min(.55, Math.abs(dx) / 320));
+});
+function avSoltar(e){
+  const d = avDesliz; if(!d || (e && e.pointerId !== d.id)) return; avDesliz = null;
+  if(!d.mov) return;
+  avRecienDeslizo = true; setTimeout(() => avRecienDeslizo = false, 60);
+  const n = avisosActivos().length, w = d.f.offsetWidth;
+  if(n > 1 && Math.abs(d.dx) > Math.min(70, w * .22)){
+    const dir = d.dx < 0 ? 1 : -1;                                        // izquierda → siguiente; derecha → anterior
+    d.f.style.transition = "transform .18s ease-out, opacity .18s"; d.f.style.transform = `translateX(${-dir * (w + 40)}px) rotate(${-dir * 8}deg)`; d.f.style.opacity = "0";
+    setTimeout(() => avPasar(dir), 170);
+  } else { d.f.style.transition = "transform .22s cubic-bezier(.2,1.4,.5,1), opacity .2s"; d.f.style.transform = ""; d.f.style.opacity = ""; }
+}
+$("#avisos").addEventListener("pointerup", avSoltar);
+$("#avisos").addEventListener("pointercancel", avSoltar);
+$("#avisos").addEventListener("click", e => {
+  e.stopPropagation();
+  if(avRecienDeslizo) return;                                             // fue un deslizamiento, no un toque
+  const ab = e.target.closest("[data-abrir]"), sg = e.target.closest("[data-sig]"), cr = e.target.closest("[data-cerrar]");
+  if(ab){ ab.dataset.abrir === "cena" ? abrirAviso(true) : abrirMesa(true); }
+  else if(sg){ avPasar(1); }
+  else if(cr){ try{ localStorage.setItem(AV_CERR + cr.dataset.cerrar, nowParts().dia); }catch(err){} avFirma = ""; actualizarAvisos(); }
+});
+function irAMesa(){
+  const it = mesaItem(); cerrarMesa(); if(!it) return;
+  state.q = ""; state.ses = ""; $("#q").value = ""; $("#fSes").value = ""; layerDone("filtro");
+  state.day = it.dia;
+  if(state.tab !== "programa") setTab("programa"); else render();
+  setTimeout(() => { const el = [...document.querySelectorAll("#v-programa .event")].find(e => e.textContent.includes(evTxt(it.titulo)));
+    if(el){ el.scrollIntoView({block:"center", behavior:"smooth"}); el.animate([{outline:"3px solid #7a1a52"},{outline:"3px solid transparent"}], {duration:1600}); } }, 80);
+}
+$("#mesaX").addEventListener("click", e => { e.stopPropagation(); cerrarMesa(); });
+$("#mesaOk").addEventListener("click", e => { e.stopPropagation(); cerrarMesa(); });
+$("#mesaVer").addEventListener("click", e => { e.stopPropagation(); irAMesa(); });
+$("#mesaCaja").addEventListener("click", e => e.stopPropagation());
+$("#mesa").addEventListener("click", e => { if(e.target.id === "mesa") cerrarMesa(); });
+document.addEventListener("keydown", e => { if(e.key === "Escape" && $("#mesa").classList.contains("open")) cerrarMesa(); });
+function animarMesa(){
+  const cv = $("#mesaCv"), W = cv.clientWidth, H = cv.clientHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  const c = cv.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const oscuro = document.documentElement.dataset.theme === "dark";
+  const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const FL = H - 12;
+  const B = {x: 18, y: 22, w: Math.min(W * .58, 250), h: 106};            // pizarrón
+  const TIZA = "rgba(246,244,236,.93)", PIEL = "#d9a37a", PELO = "#3a2a22", SACO = oscuro ? "#2f5fae" : "#134082",
+        PANT = oscuro ? "#5a5a64" : "#4a4a52", ROBOT = oscuro ? "#2f5fae" : "#134082", PANTALLA = "#0b1e3d", OJO = "#5fe0ff";
+  const sstep = (a, b, x) => { x = Math.max(0, Math.min(1, (x - a) / (b - a))); return x * x * (3 - 2 * x); };
+  const lerp = (a, b, k) => a + (b - a) * k;
+  // ---- contenido del pizarrón ----
+  const R1 = [["y' = f(t, y)", 0]];
+  const R2 = [["y", 0], ["k+1", 1], [" = y", 0], ["k", 1], [" + h·f(t", 0], ["k", 1], [", y", 0], ["k", 1], [")", 0]];
+  const fuente = (fs, sub) => `600 ${(sub ? fs * .66 : fs).toFixed(1)}px 'IBM Plex Mono','Courier New',monospace`;
+  const ancho = (toks, fs) => toks.reduce((w, [txt, sub]) => { c.font = fuente(fs, sub); return w + c.measureText(txt).width; }, 0);
+  let FS = 14; const wMax = B.w - 26; if(ancho(R2, FS) > wMax) FS = FS * wMax / ancho(R2, FS);
+  function renglon(toks, x, y){ toks.forEach(([txt, sub]) => { c.font = fuente(FS, sub); c.fillText(txt, x, sub ? y + FS * .32 : y); x += c.measureText(txt).width; }); }
+  const r1 = {x: B.x + 13, y: B.y + 24, w: ancho(R1, FS)}, r2 = {x: B.x + 13, y: B.y + 50, w: ancho(R2, FS)};
+  const PL = {x: B.x + 16, y: B.y + B.h - 12, w: Math.min(118, B.w * .5), h: 30};   // gráfico: solución exacta y pasos de Euler
+  const exacta = s => (Math.exp(1.7 * s) - 1) / (Math.exp(1.7) - 1);
+  const NE = 5, euler = []; { let y = 0; for(let k = 0; k <= NE; k++){ euler.push([k / NE, y]); y = y + (1 / NE) * 1.7 * (y + 1 / (Math.exp(1.7) - 1)) * .86; } }
+  const pPL = ([s, y]) => [PL.x + s * PL.w, PL.y - y * PL.h];
+  // ---- línea de tiempo (s) ----
+  const T1 = [.75, 1.0], T2 = [1.95, 1.7], TP = [3.85, 1.1], TB = 5.05;
+  const fr = (t, [a, d]) => Math.max(0, Math.min(1, (t - a) / d));
+  function manoObjetivo(t){
+    if(t < T1[0]) return [r1.x, r1.y - 4];
+    if(t < T1[0] + T1[1]) return [r1.x + r1.w * fr(t, T1), r1.y - 3 + Math.sin(t * 40) * 1.2];
+    if(t < T2[0]) return [lerp(r1.x + r1.w, r2.x, sstep(T1[0] + T1[1], T2[0], t)), lerp(r1.y, r2.y, sstep(T1[0] + T1[1], T2[0], t)) - 3];
+    if(t < T2[0] + T2[1]) return [r2.x + r2.w * fr(t, T2), r2.y - 3 + Math.sin(t * 40) * 1.2];
+    if(t < TP[0]) return pPL(euler[0]);
+    if(t < TP[0] + TP[1]){ const q = fr(t, TP) * NE, k = Math.min(NE - 1, Math.floor(q)), a = pPL(euler[k]), b = pPL(euler[k + 1]), u = q - k; return [lerp(a[0], b[0], u), lerp(a[1], b[1], u)]; }
+    return null;                                                             // terminó: señala el gráfico
+  }
+  // ---- dibujo de la profe (mira a la izquierda) ----
+  const ARM = 19;
+  function ik(S, Hd){ let dx = Hd[0] - S[0], dy = Hd[1] - S[1], d = Math.hypot(dx, dy); const dm = 2 * ARM - .5;
+    if(d > dm){ Hd = [S[0] + dx / d * dm, S[1] + dy / d * dm]; dx = Hd[0] - S[0]; dy = Hd[1] - S[1]; d = dm; }
+    const base = Math.atan2(dy, dx), off = Math.acos(Math.min(1, d / (2 * ARM)));
+    const e1 = [S[0] + ARM * Math.cos(base + off), S[1] + ARM * Math.sin(base + off)], e2 = [S[0] + ARM * Math.cos(base - off), S[1] + ARM * Math.sin(base - off)];
+    return [e1[1] > e2[1] ? e1 : e2, Hd]; }
+  const trazo = (pts, w, col) => { c.strokeStyle = col; c.lineWidth = w; c.lineCap = "round"; c.lineJoin = "round"; c.beginPath(); c.moveTo(pts[0][0], pts[0][1]); for(let i = 1; i < pts.length; i++) c.lineTo(pts[i][0], pts[i][1]); c.stroke(); };
+  function profe(x, mano, ph, mov, apunta){
+    const hy = FL - 43 - (mov ? Math.abs(Math.sin(ph)) * 1.2 : 0), hip = [x, hy], sh = [x - 1, hy - 30], cab = [x - 2, hy - 42];
+    c.fillStyle = "rgba(0,0,0,.14)"; c.beginPath(); c.ellipse(x, FL + 1.5, 16, 2.8, 0, 0, 6.2832); c.fill();
+    const pierna = (a) => { const k = [hip[0] + Math.sin(a) * 21, hip[1] + Math.cos(a) * 21], an = [k[0] + Math.sin(a * .3) * 21, k[1] + Math.cos(a * .3) * 21];
+      trazo([hip, k, an], 6.4, PANT); trazo([an, [an[0] - 7, an[1] + .5]], 3.6, "#1d1b1a"); };
+    const sw = mov ? Math.sin(ph) * .36 : 0;
+    c.globalAlpha = .8; pierna(-sw); c.globalAlpha = 1;
+    // brazo de atrás, relajado
+    trazo([sh, [sh[0] + 3, sh[1] + 17], [sh[0] + 1, sh[1] + 33]], 4.6, SACO);
+    pierna(sw);
+    // torso (saco/cárdigan) y cuello de camisa
+    c.fillStyle = SACO; c.beginPath(); c.moveTo(sh[0] - 6.5, sh[1]); c.lineTo(sh[0] + 6.5, sh[1]); c.lineTo(hip[0] + 6, hip[1] + 2); c.lineTo(hip[0] - 6, hip[1] + 2); c.closePath(); c.fill();
+    c.fillStyle = "#f7f4ef"; c.beginPath(); c.moveTo(sh[0] - 4, sh[1]); c.lineTo(sh[0] + 2, sh[1]); c.lineTo(sh[0] - 2, sh[1] + 6); c.closePath(); c.fill();
+    // cabeza: pelo corto, anteojos
+    trazo([sh, [cab[0], cab[1] + 6]], 4, PIEL);
+    c.fillStyle = PIEL; c.beginPath(); c.arc(cab[0], cab[1], 7.6, 0, 6.2832); c.fill();
+    c.fillStyle = PELO; c.beginPath(); c.arc(cab[0] + .8, cab[1] - 1.2, 7.9, Math.PI * .98, Math.PI * 2.08); c.closePath(); c.fill();
+    c.strokeStyle = "#1d1b1a"; c.lineWidth = 1.1; c.beginPath(); c.arc(cab[0] - 4.2, cab[1] + .6, 2.4, 0, 6.2832); c.moveTo(cab[0] - 1.6 + 2.4, cab[1] + .6); c.arc(cab[0] + .8, cab[1] + .6, 2.4, 0, 6.2832); c.stroke();
+    // brazo que escribe / señala
+    const [el, hd] = ik(sh, mano);
+    trazo([sh, el, hd], 4.8, SACO); c.fillStyle = PIEL; c.beginPath(); c.arc(hd[0], hd[1], 2.6, 0, 6.2832); c.fill();
+    if(apunta){ const d = Math.hypot(apunta[0] - hd[0], apunta[1] - hd[1]) || 1; trazo([hd, [hd[0] + (apunta[0] - hd[0]) / d * Math.min(d - 4, 34), hd[1] + (apunta[1] - hd[1]) / d * Math.min(d - 4, 34)]], 2, "#8a5a32"); }
+    else { c.fillStyle = "#fff"; c.beginPath(); c.arc(hd[0] - 1.5, hd[1] - 1, 1.6, 0, 6.2832); c.fill(); }     // tiza
+  }
+  // ---- robot (mira a la izquierda) ----
+  function robot(t, x, idea){
+    const bob = Math.sin(t * 3) * .9 + (idea ? Math.sin((t - TB) * 14) * Math.max(0, 1 - (t - TB) * 1.5) * 2.2 : 0), base = FL;
+    c.fillStyle = "rgba(0,0,0,.14)"; c.beginPath(); c.ellipse(x, FL + 1.5, 18, 2.8, 0, 0, 6.2832); c.fill();
+    c.fillStyle = ROBOT;
+    c.fillRect(x - 10, base - 9, 7, 9); c.fillRect(x + 3, base - 9, 7, 9);                                   // piernas
+    const by = base - 33 + bob; c.beginPath(); c.roundRect(x - 14, by, 28, 25, 6); c.fill();                // cuerpo
+    c.fillStyle = "#7a1a52"; c.beginPath(); c.arc(x - 4, by + 12, 2.6, 0, 6.2832); c.fill();                 // botón
+    // brazos: al prenderse la lamparita levanta uno
+    const levanta = idea ? sstep(TB, TB + .35, t) : 0;
+    trazo([[x - 13, by + 6], [x - 20, by + 14 - levanta * 26]], 4, ROBOT); trazo([[x + 13, by + 6], [x + 18, by + 17]], 4, ROBOT);
+    // cabeza con pantalla
+    const hy = by - 27; c.fillStyle = ROBOT; c.beginPath(); c.roundRect(x - 16, hy, 32, 24, 7); c.fill();
+    c.fillStyle = PANTALLA; c.beginPath(); c.roundRect(x - 12, hy + 4, 24, 16, 4); c.fill();
+    c.fillStyle = OJO; c.strokeStyle = OJO; c.lineWidth = 2; c.lineCap = "round";
+    if(idea){ [x - 7, x + 3].forEach(ex => { c.beginPath(); c.arc(ex, hy + 13, 3, Math.PI * 1.1, Math.PI * 1.9); c.stroke(); }); }
+    else { const parp = (t % 2.6) > 2.45 ? .2 : 1; [x - 7, x + 3].forEach(ex => { c.beginPath(); c.roundRect(ex - 2, hy + 12 - 3.5 * parp, 4, 7 * parp, 2); c.fill(); }); }
+    // antena que titila
+    trazo([[x, hy], [x, hy - 8]], 2, ROBOT);
+    c.fillStyle = (Math.floor(t * 2.5) % 2 || idea) ? "#e0438f" : "#7a1a52"; c.beginPath(); c.arc(x, hy - 9, 3, 0, 6.2832); c.fill();
+    // lamparita
+    if(idea){ const a = sstep(TB, TB + .3, t), ly = hy - 24;
+      c.globalAlpha = a; c.fillStyle = "rgba(255,210,63,.25)"; c.beginPath(); c.arc(x - 2, ly, 13 + Math.sin(t * 6) * 1.5, 0, 6.2832); c.fill();
+      c.fillStyle = "#ffd23f"; c.beginPath(); c.arc(x - 2, ly, 6.5, 0, 6.2832); c.fill(); c.fillStyle = "#9a9a9a"; c.fillRect(x - 5, ly + 5.5, 6, 4);
+      c.strokeStyle = "#ffd23f"; c.lineWidth = 1.6; for(let i = 0; i < 6; i++){ const an = -Math.PI / 2 + (i - 2.5) * .5; c.beginPath(); c.moveTo(x - 2 + Math.cos(an) * 10, ly + Math.sin(an) * 10); c.lineTo(x - 2 + Math.cos(an) * 14, ly + Math.sin(an) * 14); c.stroke(); }
+      c.globalAlpha = 1; }
+  }
+  // ---- bucle ----
+  const xFin = B.x + B.w + 30, ROBX = Math.max(xFin + 52, W - 40);
+  let tx = xFin, ph = 0, tPrev = 0; const t0 = performance.now();
+  function frame(now){
+    const t = reduce ? 99 : (now - t0) / 1000, dt = Math.min(.05, Math.max(0, t - tPrev)); tPrev = t;
+    c.clearRect(0, 0, W, H);
+    // piso
+    c.strokeStyle = oscuro ? "#ffffff1f" : "#0000001a"; c.lineWidth = 1; c.beginPath(); c.moveTo(14, FL + .5); c.lineTo(W - 12, FL + .5); c.stroke();
+    // pizarrón con marco de madera y bandeja de tizas
+    c.fillStyle = "#23453a"; c.fillRect(B.x, B.y, B.w, B.h);
+    c.strokeStyle = "#8a5a32"; c.lineWidth = 5; c.strokeRect(B.x - 2.5, B.y - 2.5, B.w + 5, B.h + 5);
+    c.fillStyle = "#8a5a32"; c.fillRect(B.x + 10, B.y + B.h + 2, B.w * .4, 3);
+    c.fillStyle = "#e9e6dc"; c.fillRect(B.x + 18, B.y + B.h - 1, 9, 3); c.fillRect(B.x + 32, B.y + B.h - 1, 6, 3);
+    c.fillStyle = TIZA; c.textBaseline = "alphabetic"; c.textAlign = "left";
+    const clip = (x, w, f, fn) => { if(f <= 0) return; c.save(); c.beginPath(); c.rect(x - 2, B.y, w * f + 2, B.h); c.clip(); fn(); c.restore(); };
+    clip(r1.x, r1.w, fr(t, T1), () => renglon(R1, r1.x, r1.y));
+    clip(r2.x, r2.w, fr(t, T2), () => renglon(R2, r2.x, r2.y));
+    const fp = fr(t, TP);
+    if(fp > 0){
+      c.strokeStyle = "rgba(246,244,236,.55)"; c.lineWidth = 1.2; c.beginPath(); c.moveTo(PL.x, PL.y - PL.h - 4); c.lineTo(PL.x, PL.y); c.lineTo(PL.x + PL.w + 6, PL.y); c.stroke();
+      c.setLineDash([3, 3]); c.strokeStyle = "rgba(246,244,236,.6)"; c.beginPath();
+      for(let i = 0; i <= 40 * fp; i++){ const s = i / 40, p = pPL([s, exacta(s)]); i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1]); } c.stroke(); c.setLineDash([]);
+      const q = fp * NE; c.strokeStyle = "#ffd23f"; c.lineWidth = 1.6; c.beginPath();
+      for(let k = 0; k <= Math.min(NE, Math.floor(q)); k++){ const p = pPL(euler[k]); k ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1]); }
+      if(q < NE){ const k = Math.floor(q), a = pPL(euler[k]), b = pPL(euler[k + 1]), u = q - k; c.lineTo(lerp(a[0], b[0], u), lerp(a[1], b[1], u)); }
+      c.stroke(); c.fillStyle = "#ffd23f"; for(let k = 0; k <= Math.min(NE, Math.floor(q)); k++){ const p = pPL(euler[k]); c.beginPath(); c.arc(p[0], p[1], 2, 0, 6.2832); c.fill(); }
+    }
+    // profe: camina siguiendo la mano mientras escribe; al final se corre y señala el gráfico
+    const m = manoObjetivo(t), objetivo = m ? Math.min(xFin, m[0] + 24) : xFin;
+    const nx = reduce ? objetivo : tx + (objetivo - tx) * Math.min(1, dt * 6); ph += Math.abs(nx - tx) * .22; const mov = Math.abs(nx - tx) > .15; tx = nx;
+    const shY = FL - 43 - 30;
+    const apunta = m ? null : [PL.x + PL.w * .7, PL.y - PL.h * .5];
+    profe(tx, m || [tx - 24, shY - 10], ph, mov, apunta);
+    robot(t, ROBX, t >= TB);
+    if(!reduce) mesaRAF = requestAnimationFrame(frame);
+  }
+  cancelAnimationFrame(mesaRAF); mesaRAF = requestAnimationFrame(frame);
+}
+
 let novedadesPendientes = false;
 (function(){ let v = null; try{ v = localStorage.getItem(NEWS_KEY); }catch(e){} if(v !== NEWS_VER) novedadesPendientes = true; })();
 
@@ -1625,7 +1921,8 @@ Promise.race([tryLive(), new Promise(r => setTimeout(r, 4000))]).then(() => {
     setTimeout(() => {
       if(ayudaPendiente){ ayudaPendiente = false; novedadesPendientes = false; abrirAyuda(); }      // primera visita: solo la ayuda
       else if(novedadesPendientes){ novedadesPendientes = false; abrirNews(); }                     // ya la usaba: novedades
-      else abrirAviso();                                                                            // el día de la cena: aviso
+      // los avisos (cena, mesa redonda) ya no se abren solos: quedan como tarjetas abajo
+      actualizarAvisos(); setInterval(actualizarAvisos, 60000);
     }, 550);
   }, Math.max(0, minSplash - (performance.now() - t0)));
 });
